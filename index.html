@@ -9,7 +9,8 @@
     <style>
         body { background-color: #f8f9fa; }
         .navbar { background-color: #000 !important; }
-        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 12px; }
+        .table thead { background-color: #212529; color: white; }
     </style>
 </head>
 <body>
@@ -17,39 +18,46 @@
 <nav class="navbar navbar-dark mb-4">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="LOGO_ocasa.png" alt="Logo" height="40"> 
+            <img src="LOGO_ocasa.png" alt="Logo" height="40" onerror="this.style.display='none'"> 
             <span class="ms-2">Gestión de Reclamos</span>
         </a>
     </div>
 </nav>
 
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Listado de Reclamos (420)</h2>
-        <button class="btn btn-primary">Nuevo Reclamo</button>
-    </div>
+    <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 mb-0">Base de Datos de Reclamos</h2>
+            <button class="btn btn-primary btn-sm">Refrescar Datos</button>
+        </div>
 
-    <div class="card p-3">
-        <table class="table table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Fecha</th>
-                    <th>Asunto</th>
-                    <th>Comentarios</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody id="listaReclamos">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Asunto</th>
+                        <th>Comentarios</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="listaReclamos">
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Cargando datos desde Supabase...</td>
+                    </tr>
                 </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    // Configuración de Supabase (Asegúrate de que estos datos sean los tuyos)
+    // --- PEGA TUS CREDENCIALES ACÁ ---
     const SUPABASE_URL = 'TU_URL_DE_SUPABASE'; 
     const SUPABASE_KEY = 'TU_KEY_DE_SUPABASE';
+    // --------------------------------
+
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function obtenerReclamos() {
@@ -58,21 +66,32 @@
             .select('*');
 
         if (error) {
-            console.error('Error:', error);
+            console.error('Error al obtener datos:', error);
+            document.getElementById('listaReclamos').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${error.message}</td></tr>`;
             return;
         }
 
         const tabla = document.getElementById('listaReclamos');
         tabla.innerHTML = ''; 
 
+        if (data.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron registros.</td></tr>';
+            return;
+        }
+
         data.forEach(item => {
             const fila = document.createElement('tr');
+            // Usamos corchetes para los nombres con espacios como 'Fecha de creación'
             fila.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item['Fecha de creación'] || 'Sin fecha'}</td>
-                <td>${item.Asunto || 'Sin asunto'}</td>
-                <td>${item.Comentarios || 'Sin detalle'}</td>
-                <td><span class="badge ${item.Estado === 'Cerrado' ? 'bg-success' : 'bg-warning'}">${item.Estado || 'Pendiente'}</span></td>
+                <td><strong>#${item.id}</strong></td>
+                <td>${item['Fecha de creación'] || '---'}</td>
+                <td>${item.Asunto || '---'}</td>
+                <td><small>${item.Comentarios || '---'}</small></td>
+                <td>
+                    <span class="badge ${item.Estado === 'Cerrado' ? 'bg-success' : 'bg-warning text-dark'}">
+                        ${item.Estado || 'Pendiente'}
+                    </span>
+                </td>
             `;
             tabla.appendChild(fila);
         });
