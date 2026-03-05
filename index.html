@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de Reclamos PRO</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+
+        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+        h1 { text-align: center; color: #1c1e21; margin-bottom: 25px; }
+
+        
+
+        /* Formulario */
+
+        .form-group { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 10px; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
+
+        input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; }
+
+        input:focus { border-color: #3ecf8e; }
+
+        .btn-add { background: #3ecf8e; color: white; border: none; cursor: pointer; font-weight: bold; }
+
+        .btn-add:hover { background: #36b87d; }
+
+        
+
+        /* Buscador */
+
+        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #3ecf8e; border-radius: 8px; box-sizing: border-box; }
+
+
+
+        /* Tabla */
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th { background: #3ecf8e; color: white; padding: 12px; text-align: left; font-size: 0.9em; }
+
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+
+        
+
+        /* Badges de Estado */
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+
+        .estado-finalizado { background: #d1fae5; color: #065f46; }
+
+        .estado-pendiente { background: #fee2e2; color: #991b1b; }
+
+        
+
+  <!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sistema de Gestión de Reclamos - OCASA</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+
+        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+        
+
+        /* CABECERA CON LOGO */
+
+        .header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+
+        .logo-ocasa { max-height: 80px; margin-bottom: 10px; }
+
+        h1 { text-align: center; color: #1c1e21; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+
+        
+
+        /* Formulario */
+
+        .form-group { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 10px; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
+
+        input, button { padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; }
+
+        .btn-add { background: #0056b3; color: white; border: none; cursor: pointer; font-weight: bold; } /* Color azul OCASA */
+
+        .btn-add:hover { background: #004494; }
+
+        
+
+        /* Buscador */
+
+        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #0056b3; border-radius: 8px; box-sizing: border-box; }
+
+
+
+        /* Tabla */
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th { background: #0056b3; color: white; padding: 12px; text-align: left; font-size: 0.9em; }
+
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+
+        
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+
+        .estado-finalizado { background: #d1fae5; color: #065f46; }
+
+        .estado-pendiente { background: #fee2e2; color: #991b1b; }
+
+        
+
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <div class="container">
+
+        <div class="header-container">
+
+           <img src="LOGO_ocasa.png" alt="Logo OCASA" class="logo-ocasa">
+
+            <h1>Sistema de Gestión de Reclamos</h1>
+
+        </div>
+
+
+
+        <div class="form-group">
+
+            <input type="text" id="new-id" placeholder="ID (R-000)">
+
+            <input type="text" id="new-nombre" placeholder="Nombre Cliente">
+
+            <input type="text" id="new-reclamo" placeholder="Detalle del reclamo">
+
+            <button class="btn-add" onclick="agregarReclamo()">+ Cargar Reclamo</button>
+
+        </div>
+
+
+
+        <input type="text" id="buscador" class="search-box" placeholder="Buscar por cliente, ID o detalle...">
+
+
+
+        <div id="loading">Conectando con base de datos...</div>
+
+        
+
+        <table id="tabla" style="display:none;">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Fecha</th>
+
+                    <th>Cliente</th>
+
+                    <th>Detalle</th>
+
+                    <th>Estado</th>
+
+                    <th>Acción</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="cuerpo"></tbody>
+
+        </table>
+
+    </div>
+
+
+
+    <script>
+
+        // RECUERDA PONER TUS CLAVES AQUÍ
+
+const SUPABASE_URL = 'https://ctttghqfsgwgeoxdwclx.supabase.co'; 
+
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dHRnaHFmc2d3Z2VveGR3Y2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzM3MjgsImV4cCI6MjA4ODA0OTcyOH0.ruZDmt_8xGhFiwHjEsrqKVfCkemj_r3XK7ieAWLTYE0';
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+
+        // ... El resto del código de cargar, filtrar y borrar se mantiene igual ...
+
+        // (Por brevedad no lo repito todo, pero mantén las funciones anteriores)
+
+   document.getElementById('loading').style.display = 'none';
+
+document.getElementById('tabla').style.display = 'table'; </script>
+
+</body>
+
+</html>
