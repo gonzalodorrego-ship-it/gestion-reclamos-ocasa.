@@ -3,161 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCASA - Panel Operativo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>OCASA - Sistema de Gestión Operativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --ocasa-yellow: #ffde00; --ocasa-black: #1a1a1a; }
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Navbar Superior */
-        .navbar { background-color: var(--ocasa-black); border-bottom: 4px solid var(--ocasa-yellow); padding: 15px; }
-        .logo-img { height: 40px; }
-        
-        /* Sidebar / Menú Lateral */
-        .nav-link { color: #555; border-radius: 8px; margin-bottom: 5px; font-weight: 500; }
-        .nav-link.active { background-color: var(--ocasa-black); color: var(--ocasa-yellow); }
-        .nav-link:hover:not(.active) { background-color: #e9ecef; }
-
-        /* Contenedores */
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); background: white; }
-        .btn-ocasa { background-color: var(--ocasa-black); color: white; border: none; font-weight: bold; transition: 0.3s; }
-        .btn-ocasa:hover { background-color: #333; color: var(--ocasa-yellow); transform: translateY(-2px); }
-        
-        /* Status Badges */
-        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-        .bg-pending { background-color: #fff3cd; color: #856404; }
+        body { font-family: 'Inter', sans-serif; }
+        .ocasa-yellow { color: #FFD700; }
+        .bg-ocasa-yellow { background-color: #FFD700; }
+        .bg-ocasa-black { background-color: #1a1a1a; }
+        .shadow-soft { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .transition-sidebar { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-900">
 
-<nav class="navbar navbar-dark sticky-top">
-    <div class="container-fluid">
-        <div class="d-flex align-items-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="logo-img" onerror="this.src='https://via.placeholder.com/120x40?text=OCASA'">
-            <h1 class="h5 mb-0 text-white ms-3 d-none d-sm-block">GESTIÓN OPERATIVA</h1>
-        </div>
-        <div class="text-white small">Sesión: <strong>Gonzalo Dorrego</strong></div>
-    </div>
-</nav>
-
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-md-3 col-lg-2 mb-4">
-            <div class="card-custom p-3">
-                <nav class="nav flex-column">
-                    <a class="nav-link active" href="#" onclick="showSection('carga')">📝 Nueva Carga</a>
-                    <a class="nav-link" href="#" onclick="showSection('historico')">📊 Ver Histórico</a>
-                    <a class="nav-link" href="#" onclick="alert('Próximamente...')">📈 Reportes</a>
-                    <hr>
-                    <a class="nav-link text-danger" href="#">🚪 Salir</a>
-                </nav>
+    <div class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-ocasa-black text-white flex flex-col transition-sidebar z-50">
+            <div class="p-6 border-b border-white/10 flex items-center gap-3">
+                <div class="w-8 h-8 bg-ocasa-yellow rounded flex items-center justify-center text-black font-bold">O</div>
+                <div>
+                    <span class="font-bold text-lg tracking-tighter block leading-none">OCASA</span>
+                    <span class="text-[10px] text-ocasa-yellow font-bold tracking-widest uppercase">Logística</span>
+                </div>
             </div>
-        </div>
-
-        <div class="col-md-9 col-lg-10">
             
-            <div id="section-carga" class="card-custom p-4">
-                <h2 class="h4 fw-bold mb-4">Registro de Nuevo Reclamo</h2>
-                <form id="formReclamo">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Asunto / Título</label>
-                            <input type="text" id="asunto" class="form-control" placeholder="Ej: Error en despacho #450" required>
+            <nav class="flex-1 px-4 py-8 space-y-2">
+                <button onclick="switchTab('carga')" id="btn-carga" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-ocasa-yellow text-black font-semibold shadow-lg shadow-yellow-500/10">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Nueva Carga
+                </button>
+                <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5 hover:text-white">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> Histórico
+                </button>
+                <button onclick="switchTab('reportes')" id="btn-reportes" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5 hover:text-white">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Reportes
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-white/10">
+                <button class="flex items-center gap-3 px-4 py-2 text-red-400 hover:text-red-300 text-sm font-medium w-full transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            
+            <header class="h-20 bg-white border-b border-gray-200 px-8 flex items-center justify-between shadow-sm z-40">
+                <h2 id="view-title" class="text-xl font-bold text-gray-800">Nueva Carga</h2>
+
+                <div class="flex items-center gap-6">
+                    <div class="relative cursor-pointer">
+                        <i data-lucide="bell" class="w-6 h-6 text-gray-500"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">3</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 pl-6 border-l border-gray-200 group cursor-pointer">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-gray-900 leading-none mb-1">Gonzalo Dorrego</p>
+                            <p class="text-[11px] text-gray-500 font-medium">Admin Operativo</p>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Prioridad</label>
-                            <select id="prioridad" class="form-select">
-                                <option value="Baja">Baja</option>
-                                <option value="Media" selected>Media</option>
-                                <option value="Alta">Alta</option>
-                            </select>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label class="form-label fw-bold">Descripción Detallada</label>
-                            <textarea id="descripcion" class="form-control" rows="5" placeholder="Explique el reclamo aquí..." required></textarea>
+                        <div class="w-10 h-10 bg-ocasa-black rounded-full flex items-center justify-center text-ocasa-yellow border-2 border-transparent group-hover:border-ocasa-yellow transition-all shadow-md">
+                            <i data-lucide="user" class="w-5 h-5"></i>
                         </div>
                     </div>
-                    <button type="submit" id="btnSubmit" class="btn btn-ocasa px-5 py-2">ENVIAR A PLANILLA</button>
-                </form>
-                <div id="successAlert" class="alert alert-success mt-3 d-none">✓ Reclamo enviado correctamente al Sheet.</div>
-            </div>
-
-            <div id="section-historico" class="card-custom p-4 d-none">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h4 fw-bold mb-0">Historial Reciente</h2>
-                    <button class="btn btn-sm btn-outline-dark">Refrescar</button>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Asunto</th>
-                                <th>Prioridad</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><small>Hoy</small></td>
-                                <td>Ejemplo de carga enviada</td>
-                                <td><span class="badge bg-secondary">Media</span></td>
-                                <td><span class="status-pill bg-pending">Pendiente en Sheet</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </header>
 
-        </div>
+            <div id="content" class="flex-1 overflow-y-auto p-8">
+                
+                <div id="section-carga" class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-soft">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="plus-circle" class="w-5 h-5 ocasa-yellow"></i> Registro de Incidencia
+                            </h3>
+                            <form id="mainForm" class="space-y-5">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold uppercase tracking-wider text-gray-500">Tipo de Reclamo</label>
+                                        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-yellow-400 outline-none transition-all font-medium">
+                                            <option>Despacho</option>
+                                            <option>Inventario</option>
+                                            <option>Recepción</option>
+                                            <option>Proceso Interno</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold uppercase tracking-wider text-gray-500">N° Remito / Orden</label>
+                                        <input type="text" placeholder="Ej: EX-98823" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none transition-all">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-gray-500">Asunto</label>
+                                    <input type="text" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none transition-all">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold uppercase tracking-wider text-gray-500">Descripción detallada</label>
+                                    <textarea id="desc-ia" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none transition-all resize-none"></textarea>
+                                </div>
+                                <div class="flex items-center justify-between pt-4">
+                                    <div class="flex items-center gap-4">
+                                        <label class="text-xs font-bold uppercase text-gray-500">Prioridad:</label>
+                                        <select id="priority-select" onchange="updatePriorityColor(this)" class="px-4 py-1.5 rounded-full border-2 border-orange-200 bg-orange-50 text-orange-700 text-xs font-bold outline-none transition-all">
+                                            <option value="Baja">Baja</option>
+                                            <option value="Media" selected>Media</option>
+                                            <option value="Alta">Alta</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" id="submit-btn" class="bg-ocasa-black text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-black active:scale-95 transition-all shadow-lg shadow-black/10">
+                                        <i data-lucide="send" class="w-4 h-4 text-yellow-400"></i> ENVIAR A PLANILLA
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                            <i data-lucide="sparkles" class="absolute -right-4 -top-4 w-24 h-24 text-white/5 rotate-12"></i>
+                            <h4 class="text-sm font-bold text-yellow-400 flex items-center gap-2 mb-4 uppercase tracking-widest">
+                                <i data-lucide="cpu" class="w-4 h-4"></i> Asistente IA OCASA
+                            </h4>
+                            <div id="ia-container" class="space-y-3 opacity-50 transition-opacity duration-500">
+                                <p class="text-xs text-gray-400 italic">Escriba una descripción para buscar casos similares...</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-soft">
+                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">Estado Base de Datos</h4>
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center gap-2 text-sm font-bold text-green-600">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Supabase: Online
+                                </span>
+                                <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-500">420 REGISTROS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-historico" class="hidden animate-in slide-in-from-bottom-4 duration-500">
+                    <div class="bg-white rounded-2xl shadow-soft border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex flex-wrap gap-4 items-center justify-between bg-gray-50/50">
+                            <div class="flex gap-2">
+                                <input type="text" placeholder="Buscar por asunto o remito..." class="px-4 py-2 border rounded-lg text-sm w-64 outline-none focus:ring-2 focus:ring-yellow-400">
+                                <select class="px-4 py-2 border rounded-lg text-sm outline-none"><option>Tipo: Todos</option></select>
+                            </div>
+                            <button class="bg-white border px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition-all">
+                                <i data-lucide="download" class="w-4 h-4"></i> Exportar CSV
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 border-b border-gray-100">
+                                    <tr>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fecha</th>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Asunto</th>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tipo</th>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Prioridad</th>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estado</th>
+                                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body" class="divide-y divide-gray-50">
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-xs font-medium text-gray-500">06 Mar 2024</td>
+                                        <td class="px-6 py-4 text-sm font-bold">Error etiquetado Lote #A4</td>
+                                        <td class="px-6 py-4 text-xs font-bold text-gray-600">Despacho</td>
+                                        <td class="px-6 py-4"><span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-black uppercase">Alta</span></td>
+                                        <td class="px-6 py-4"><span class="flex items-center gap-1.5 text-[11px] font-bold text-amber-600"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> En Proceso</span></td>
+                                        <td class="px-6 py-4 text-center"><button class="text-gray-400 hover:text-black"><i data-lucide="more-horizontal" class="w-5 h-5"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
     </div>
-</div>
 
-<script>
-    // CAMBIA ESTA URL POR LA DE TU GOOGLE APPS SCRIPT
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/14T9wrhdyMLsn5s54oxtaxEdu0jrszlZYkrsYn6vY8lA/edit?gid=0#gid=0';
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
 
-    function showSection(name) {
-        document.getElementById('section-carga').classList.toggle('d-none', name !== 'carga');
-        document.getElementById('section-historico').classList.toggle('d-none', name !== 'historico');
-        // Cambiar estado activo en links
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        event.target.classList.add('active');
-    }
+        // Lógica de Navegación
+        function switchTab(tabId) {
+            document.getElementById('section-carga').classList.add('hidden');
+            document.getElementById('section-historico').classList.add('hidden');
+            document.getElementById('section-' + tabId).classList.remove('hidden');
+            
+            // Actualizar Título
+            const titles = { 'carga': 'Nueva Carga', 'historico': 'Histórico Operativo', 'reportes': 'Reportes y Analítica' };
+            document.getElementById('view-title').innerText = titles[tabId];
 
-    document.getElementById('formReclamo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btnSubmit');
-        const alert = document.getElementById('successAlert');
-
-        btn.disabled = true;
-        btn.innerText = 'Enviando...';
-
-        const payload = {
-            asunto: document.getElementById('asunto').value,
-            descripcion: document.getElementById('descripcion').value,
-            prioridad: document.getElementById('prioridad').value,
-            fecha: new Date().toLocaleString()
-        };
-
-        try {
-            await fetch(SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
+            // Estilos de botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5 hover:text-white";
             });
-
-            alert.classList.remove('d-none');
-            document.getElementById('formReclamo').reset();
-            setTimeout(() => alert.classList.add('d-none'), 4000);
-        } catch (err) {
-            console.error(err);
-            alert('Error al conectar con Google Sheets.');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = 'ENVIAR A PLANILLA';
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.className = "tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all bg-ocasa-yellow text-black font-semibold shadow-lg shadow-yellow-500/10";
+            lucide.createIcons();
         }
-    });
-</script>
+
+        // Simulación IA al escribir
+        const textarea = document.getElementById('desc-ia');
+        const iaContainer = document.getElementById('ia-container');
+
+        textarea.addEventListener('input', (e) => {
+            if (e.target.value.length > 15) {
+                iaContainer.classList.remove('opacity-50');
+                iaContainer.innerHTML = `
+                    <div class="bg-white/10 p-3 rounded-xl border border-white/10 animate-pulse">
+                        <p class="text-[10px] font-black text-yellow-400 mb-1">CASO SIMILAR #422</p>
+                        <p class="text-xs text-gray-300 italic leading-relaxed">"Incidencia en despacho detectada en turno noche. Resolución: Reinicio de Zebra Server y validación de IP."</p>
+                    </div>
+                `;
+            } else {
+                iaContainer.classList.add('opacity-50');
+                iaContainer.innerHTML = `<p class="text-xs text-gray-400 italic">Escriba una descripción...</p>`;
+            }
+        });
+
+        // Cambio de color de prioridad
+        function updatePriorityColor(select) {
+            const colors = {
+                'Alta': { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
+                'Media': { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700' },
+                'Baja': { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700' }
+            };
+            const theme = colors[select.value];
+            select.className = `px-4 py-1.5 rounded-full border-2 ${theme.border} ${theme.bg} ${theme.text} text-xs font-bold outline-none transition-all`;
+        }
+
+        // Envío de Formulario
+        document.getElementById('mainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = `<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> PROCESANDO...`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-white"></i> ¡REGISTRADO!`;
+                btn.className = "bg-green-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all";
+                lucide.createIcons();
+                setTimeout(() => location.reload(), 2000);
+            }, 1500);
+        });
+    </script>
 </body>
 </html>
