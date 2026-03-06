@@ -6,7 +6,7 @@
     <title>OCASA - Panel Operativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .bg-ocasa-yellow { background-color: #FFD700; }
@@ -21,8 +21,8 @@
 
     <aside class="w-64 bg-ocasa-black text-white flex flex-col shadow-2xl z-50">
         <div class="p-6 border-b border-white/10 flex flex-col items-center gap-4 text-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto">
-            <span class="text-[10px] text-yellow-400 font-bold tracking-widest uppercase opacity-70">Logística Integral</span>
+            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
+            <span class="text-[10px] text-yellow-400 font-black tracking-widest uppercase opacity-70">Logística Integral</span>
         </div>
         <nav class="flex-1 px-4 py-8 space-y-2">
             <button onclick="location.reload()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-ocasa-yellow text-black font-bold shadow-lg shadow-yellow-500/20 active:scale-95 transition-all">
@@ -38,7 +38,7 @@
     <main class="flex-1 flex flex-col overflow-hidden relative">
         <header class="h-20 bg-white border-b border-gray-100 px-8 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-6">
-                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto">
+                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
                 <h2 class="text-xl font-bold text-gray-800 border-l pl-6 border-gray-100 uppercase tracking-tighter">Gestión de Reclamos</h2>
             </div>
             <div class="flex items-center gap-3">
@@ -78,7 +78,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Resolución</label>
-                                <input type="text" id="resolucion" placeholder="Acción tomada..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
+                                <input type="text" id="resolucion" placeholder="Acción tomada (opcional)" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
                             </div>
                             <div class="space-y-2">
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Estado</label>
@@ -109,7 +109,7 @@
         </div>
 
         <div id="modalHistorico" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-6xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="bg-white w-full max-w-7xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
                 <div class="p-6 border-b flex justify-between items-center bg-ocasa-black text-white">
                     <div class="flex items-center gap-3">
                         <i data-lucide="history" class="text-ocasa-yellow"></i>
@@ -125,21 +125,26 @@
                             <tr class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b">
                                 <th class="py-4 px-3">Fecha</th>
                                 <th class="py-4 px-3">Tipo</th>
-                                <th class="py-4 px-3">Remito</th>
+                                <th class="py-4 px-3">N° Remito</th>
                                 <th class="py-4 px-3">Descripción</th>
                                 <th class="py-4 px-3">Prioridad</th>
+                                <th class="py-4 px-3">Resolución</th>
                                 <th class="py-4 px-3">Estado</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600"></tbody>
+                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600">
+                            </tbody>
                     </table>
+                </div>
+                <div class="p-4 bg-gray-50 border-t text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                    Sincronización directa con Google Sheets
                 </div>
             </div>
         </div>
 
         <div id="msgExito" class="hidden fixed bottom-8 right-8 animate-bounce z-50">
             <div class="bg-green-600 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold shadow-2xl">
-                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Sincronizado con el Sheet!
+                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Registro Sincronizado!
             </div>
         </div>
     </main>
@@ -148,7 +153,7 @@
         lucide.createIcons();
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQU0wy13OxPyf-a44UI7Ro2Q6gfVG-Aqnv4SJ6_qH_gi2PILvFMBS1j0DASXZ27sOjbA/exec';
 
-        // LÓGICA ENVÍO (Sincronizada con el orden de tu planilla)
+        // ENVÍO DE FORMULARIO
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
@@ -181,31 +186,53 @@
             }
         });
 
-        // LÓGICA HISTÓRICO
+        // CARGA DE HISTORIAL CORREGIDO
         const modal = document.getElementById('modalHistorico');
-        document.getElementById('btnHistorico').addEventListener('click', async () => {
-            modal.classList.remove('hidden');
-            const tabla = document.getElementById('tablaCuerpo');
-            tabla.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase">Obteniendo datos de OCASA...</td></tr>';
+        const btnHist = document.getElementById('btnHistorico');
+        const btnCerrar = document.getElementById('cerrarModal');
+        const tabla = document.getElementById('tablaCuerpo');
+
+        async function cargarHistorico() {
+            tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest">Obteniendo datos de OCASA...</td></tr>';
             
             try {
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
                 tabla.innerHTML = '';
+                
                 data.forEach(item => {
+                    const badgePrio = item.prioridad === 'Alta' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600';
+                    const badgeEst = item.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600';
+
                     tabla.innerHTML += `
-                        <tr class="border-b hover:bg-yellow-50/30 transition-all">
-                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400">${item.fecha}</td>
+                        <tr class="border-b hover:bg-yellow-50/30 transition-all group">
+                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400 whitespace-nowrap">${item.fecha}</td>
                             <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
                             <td class="py-4 px-3 font-black text-gray-500">${item.remito}</td>
-                            <td class="py-4 px-3 text-gray-600 truncate max-w-[200px]">${item.descripcion}</td>
-                            <td class="py-4 px-3"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${item.prioridad === 'Alta' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}">${item.prioridad}</span></td>
-                            <td class="py-4 px-3 font-bold text-green-600">${item.estado || 'Pendiente'}</td>
+                            <td class="py-4 px-3 text-gray-600 max-w-xs truncate">${item.descripcion}</td>
+                            <td class="py-4 px-3">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgePrio}">
+                                    ${item.prioridad}
+                                </span>
+                            </td>
+                            <td class="py-4 px-3 text-gray-500 italic text-xs">${item.resolucion || '-'}</td>
+                            <td class="py-4 px-3">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgeEst}">
+                                    ${item.estado || 'Pendiente'}
+                                </span>
+                            </td>
                         </tr>`;
                 });
-            } catch (e) { tabla.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-500 font-bold">Error de conexión.</td></tr>'; }
+            } catch (e) { 
+                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold uppercase tracking-widest">Error de Sincronización.</td></tr>'; 
+            }
+        }
+
+        btnHist.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            cargarHistorico();
         });
-        document.getElementById('cerrarModal').addEventListener('click', () => modal.classList.add('hidden'));
+        btnCerrar.addEventListener('click', () => modal.classList.add('hidden'));
     </script>
 </body>
 </html>
