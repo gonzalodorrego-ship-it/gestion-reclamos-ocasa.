@@ -21,7 +21,7 @@
 
     <aside class="w-64 bg-ocasa-black text-white flex flex-col shadow-2xl z-50">
         <div class="p-6 border-b border-white/10 flex flex-col items-center gap-4 text-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
+            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto">
             <span class="text-[10px] text-yellow-400 font-black tracking-widest uppercase opacity-70">Logística Integral</span>
         </div>
         <nav class="flex-1 px-4 py-8 space-y-2">
@@ -38,7 +38,7 @@
     <main class="flex-1 flex flex-col overflow-hidden relative">
         <header class="h-20 bg-white border-b border-gray-100 px-8 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-6">
-                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
+                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto">
                 <h2 class="text-xl font-bold text-gray-800 border-l pl-6 border-gray-100 uppercase tracking-tighter">Gestión de Reclamos</h2>
             </div>
             <div class="flex items-center gap-3">
@@ -71,34 +71,29 @@
                         </div>
 
                         <div class="space-y-2">
-                            <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Descripción</label>
-                            <textarea id="descripcion" rows="2" required placeholder="Detalle del reclamo..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm resize-none"></textarea>
+                            <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Descripción del Suceso</label>
+                            <textarea id="descripcion" rows="4" required placeholder="Describe detalladamente qué ocurrió..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm resize-none"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Resolución</label>
-                                <input type="text" id="resolucion" placeholder="Acción tomada" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Estado</label>
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Estado Inicial</label>
                                 <select id="estado" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-yellow-400 outline-none font-bold text-sm">
                                     <option>Pendiente</option>
                                     <option>En Proceso</option>
-                                    <option>Finalizado</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Prioridad</label>
+                                <select id="prioridad" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-yellow-400 outline-none font-bold text-sm">
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-6 border-t border-gray-100">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-tight">Prioridad:</span>
-                                <select id="prioridad" class="px-5 py-2 rounded-full border-2 border-orange-200 bg-orange-50 text-orange-700 text-xs font-black outline-none">
-                                    <option value="Baja">Baja</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Alta" selected>Alta</option>
-                                </select>
-                            </div>
+                        <div class="flex items-center justify-end pt-6 border-t border-gray-100">
                             <button type="submit" id="btnEnviar" class="bg-ocasa-black text-white px-10 py-4 rounded-2xl font-black text-sm flex items-center gap-3 hover:bg-black transition-all shadow-xl active:scale-95">
                                 <i data-lucide="send" class="w-4 h-4 text-ocasa-yellow"></i> ENVIAR A PLANILLA
                             </button>
@@ -125,15 +120,14 @@
                             <tr class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b">
                                 <th class="py-4 px-3">Fecha</th>
                                 <th class="py-4 px-3">Tipo</th>
-                                <th class="py-4 px-3">N° Remito</th>
+                                <th class="py-4 px-3">Remito</th>
                                 <th class="py-4 px-3">Descripción</th>
                                 <th class="py-4 px-3">Prioridad</th>
                                 <th class="py-4 px-3">Resolución</th>
                                 <th class="py-4 px-3">Estado</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600">
-                            </tbody>
+                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600"></tbody>
                     </table>
                 </div>
             </div>
@@ -141,7 +135,7 @@
 
         <div id="msgExito" class="hidden fixed bottom-8 right-8 animate-bounce z-50">
             <div class="bg-green-600 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold shadow-2xl">
-                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Registro Sincronizado!
+                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Enviado Correctamente!
             </div>
         </div>
     </main>
@@ -150,24 +144,23 @@
         lucide.createIcons();
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRynXjc9Ijn2CobYr08kaBJD0A5QVa8enxkVLFBTafIvFLF1NjpxPb9lygDePQy571EA/exec';
 
-        // ENVÍO DE FORMULARIO
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
             
             const payload = {
-                fecha: new Date().toLocaleDateString(), 
+                fecha: new Date().toLocaleString(), 
                 tipo: document.getElementById('tipo').value,
                 remito: document.getElementById('remito').value,
                 descripcion: document.getElementById('descripcion').value,
                 prioridad: document.getElementById('prioridad').value,
-                resolucion: document.getElementById('resolucion').value,
+                resolucion: "", // Vacío por ahora, se llena en el Sheet
                 estado: document.getElementById('estado').value,
                 usuario: "Gonzalo Dorrego"
             };
 
             btn.disabled = true;
-            btn.innerHTML = "SINCRONIZANDO...";
+            btn.innerHTML = "CARGANDO...";
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
@@ -175,7 +168,7 @@
                 document.getElementById('formReclamo').reset();
                 setTimeout(() => document.getElementById('msgExito').classList.add('hidden'), 4000);
             } catch (error) {
-                alert('Error al conectar con la planilla.');
+                alert('Error al enviar.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i data-lucide="send" class="w-4 h-4 text-ocasa-yellow"></i> ENVIAR A PLANILLA`;
@@ -183,14 +176,12 @@
             }
         });
 
-        // CARGA DE HISTORIAL
+        // LÓGICA DE HISTORIAL CORREGIDA PARA DESCRIPCIÓN
         const modal = document.getElementById('modalHistorico');
-        const btnHist = document.getElementById('btnHistorico');
-        const btnCerrar = document.getElementById('cerrarModal');
-        const tabla = document.getElementById('tablaCuerpo');
-
-        async function cargarHistorico() {
-            tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest">Sincronizando con OCASA Cloud...</td></tr>';
+        document.getElementById('btnHistorico').addEventListener('click', async () => {
+            modal.classList.remove('hidden');
+            const tabla = document.getElementById('tablaCuerpo');
+            tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase">Sincronizando Base de Datos...</td></tr>';
             
             try {
                 const response = await fetch(WEB_APP_URL);
@@ -199,21 +190,21 @@
                 
                 data.forEach(item => {
                     const badgePrio = item.prioridad === 'Alta' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600';
-                    const badgeEst = item.estado === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600';
+                    const badgeEst = item.estado === 'Finalizado' || item.estado === 'Finzalizado' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600';
 
                     tabla.innerHTML += `
                         <tr class="border-b hover:bg-yellow-50/30 transition-all group">
-                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400 whitespace-nowrap">${item.fecha}</td>
+                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400">${item.fecha}</td>
                             <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
                             <td class="py-4 px-3 font-black text-gray-500">${item.remito}</td>
-                            <td class="py-4 px-3 text-gray-600 text-xs italic">${item.descripcion || '-'}</td>
+                            <td class="py-4 px-3 text-gray-600 text-xs italic max-w-xs truncate">${item.descripcion || '-'}</td>
                             <td class="py-4 px-3">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgePrio}">
                                     ${item.prioridad}
                                 </span>
                             </td>
                             <td class="py-4 px-3 text-gray-500 text-xs">${item.resolucion || '-'}</td>
-                            <td class="py-4 px-3">
+                            <td class="py-4 px-3 font-bold">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgeEst}">
                                     ${item.estado || 'Pendiente'}
                                 </span>
@@ -221,15 +212,11 @@
                         </tr>`;
                 });
             } catch (e) { 
-                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold uppercase tracking-widest">Error al leer la base de datos.</td></tr>'; 
+                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold">Error de sincronización.</td></tr>'; 
             }
-        }
-
-        btnHist.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-            cargarHistorico();
         });
-        btnCerrar.addEventListener('click', () => modal.classList.add('hidden'));
+
+        document.getElementById('cerrarModal').addEventListener('click', () => modal.classList.add('hidden'));
     </script>
 </body>
 </html>
