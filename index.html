@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCASA - Gestión Operativa</title>
+    <title>OCASA - Gestión de Reclamos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ocasa-cyan: #0097A7; /* El color exacto de la flecha del logo */
+            --ocasa-cyan: #0097A7;
             --ocasa-black: #1A1A1A;
         }
         body { font-family: 'Inter', sans-serif; background-color: #F4F7F9; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         .text-ocasa-cyan { color: var(--ocasa-cyan); }
-        .border-ocasa-cyan { border-color: var(--ocasa-cyan); }
         .bg-ocasa-black { background-color: var(--ocasa-black); }
         
         .custom-scroll::-webkit-scrollbar { width: 6px; }
@@ -30,7 +29,6 @@
         .btn-primary:hover {
             background-color: #007A87;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 151, 167, 0.3);
         }
         .recurrence-alert { border-left: 5px solid #E53935 !important; background-color: #FFF5F5; }
     </style>
@@ -40,23 +38,22 @@
     <aside class="w-64 bg-ocasa-black text-white flex flex-col shadow-2xl z-50">
         <div class="p-8 border-b border-white/5 flex flex-col items-center gap-4">
             <div class="bg-white p-2 rounded-lg">
-                <img src="https://i.imgur.com/KUpVbU2.png" alt="OCASA" class="w-32 h-auto">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png" alt="OCASA" class="w-32 h-auto">
             </div>
             <span class="text-[9px] text-cyan-400 font-black tracking-[0.3em] uppercase opacity-80">Logística Integral</span>
         </div>
         
         <nav class="flex-1 px-4 py-8 space-y-3">
             <button onclick="location.reload()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl btn-primary font-bold shadow-lg active:scale-95">
-                <i data-lucide="plus-square" class="w-5 h-5"></i> NUEVA CARGA
+                <i data-lucide="plus-square" class="w-5 h-5"></i> NUEVO RECLAMO
             </button>
-            
-            <button id="btnHistorico" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all group">
-                <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-ocasa-cyan"></i> PANEL DE CONTROL
+            <button id="btnHistorico" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> PANEL DE CONTROL
             </button>
         </nav>
 
         <div class="p-6 border-t border-white/5 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-ocasa-cyan flex items-center justify-center font-bold text-xs">GD</div>
+            <div class="w-8 h-8 rounded-full bg-ocasa-cyan flex items-center justify-center font-bold text-xs text-white">GD</div>
             <div class="flex flex-col">
                 <span class="text-[11px] font-bold">Gonzalo Dorrego</span>
                 <span class="text-[9px] text-gray-500 uppercase font-black">Admin Sistema</span>
@@ -64,73 +61,68 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-hidden relative">
+    <main class="flex-1 flex flex-col overflow-hidden">
         <header class="h-20 bg-white border-b border-gray-100 px-10 flex items-center justify-between shadow-sm">
             <h2 class="text-xl font-black text-gray-800 uppercase tracking-tighter flex items-center gap-3">
                 <span class="w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                Gestión Operativa Cloud
+                Gestión de Reclamos Cloud
             </h2>
-            
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col text-right">
-                    <span id="clock" class="text-sm font-bold text-gray-800">00:00:00</span>
-                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Estado: Online</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-ocasa-cyan">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                </div>
+            <div class="flex flex-col text-right">
+                <span id="clock" class="text-sm font-bold text-gray-800">00:00:00</span>
+                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Sistema Activo</span>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-12 bg-[#F4F7F9]">
             <div class="max-w-4xl mx-auto">
-                <div class="bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
-                    <div class="bg-ocasa-cyan h-2 w-full"></div>
-                    
+                <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden">
+                    <div class="bg-ocasa-cyan h-2.5 w-full"></div>
                     <form id="formReclamo" class="p-10 space-y-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest ml-1">Tipo de Evento</label>
-                                <select id="tipo" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700 transition-all appearance-none">
-                                    <option value="Reclamo">⚠️ RECLAMO</option>
-                                    <option value="Despacho">📦 ERROR DESPACHO</option>
-                                    <option value="Inventario">🔍 DIFERENCIA STOCK</option>
-                                    <option value="Siniestro">🚫 SINIESTRO / DAÑO</option>
+                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest">Tipo de Reclamo</label>
+                                <select id="tipo" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700 transition-all">
+                                    <option value="Caja rota">📦 Caja rota / Dañada</option>
+                                    <option value="Producto equivocado">🔄 Producto equivocado</option>
+                                    <option value="Color equivocado">🎨 Color equivocado</option>
+                                    <option value="No recibi mi producto">🚫 No recibí mi producto</option>
+                                    <option value="Faltante parcial">📉 Faltante parcial</option>
                                 </select>
                             </div>
                             <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest ml-1">N° Remito / Guía</label>
-                                <input type="text" id="remito" required placeholder="EJ: 0064-00076543" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700 uppercase transition-all">
+                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest">ID de Reclamo (Remito)</label>
+                                <input type="text" id="remito" required placeholder="EJ: REC-99827" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700 uppercase transition-all">
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest ml-1">Descripción del Suceso</label>
-                            <textarea id="descripcion" rows="4" required placeholder="Ingrese el detalle completo de la novedad..." class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-medium text-gray-700 transition-all resize-none"></textarea>
+                            <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest">Detalle del Reclamo</label>
+                            <textarea id="descripcion" rows="4" required placeholder="Describe brevemente el problema..." class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-medium text-gray-700 transition-all resize-none"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest ml-1">Estado Operativo</label>
-                                <select id="estado" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700">
-                                    <option>Pendiente</option>
-                                    <option>En Proceso</option>
+                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest">Ubicación del Incidente</label>
+                                <select id="estado" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700">
+                                    <option>Depósito Central</option>
+                                    <option>Transporte / En Viaje</option>
+                                    <option>Sucursal Destino</option>
+                                    <option>Pickeo / Embalaje</option>
                                 </select>
                             </div>
                             <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest ml-1">Prioridad</label>
-                                <select id="prioridad" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700">
-                                    <option value="Baja">Baja</option>
-                                    <option value="Media" selected>Media</option>
-                                    <option value="Alta">Crítica / Inmediata</option>
+                                <label class="text-[11px] font-black uppercase text-gray-400 tracking-widest">Urgencia</label>
+                                <select id="prioridad" class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:border-ocasa-cyan focus:bg-white outline-none font-bold text-gray-700">
+                                    <option value="Baja">Baja (48hs)</option>
+                                    <option value="Media" selected>Media (24hs)</option>
+                                    <option value="Alta">Alta (Inmediata)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-8 border-t border-gray-50">
-                            <p class="text-[10px] text-gray-400 font-medium italic">Todos los datos serán reflejados en la Planilla de Control.</p>
-                            <button type="submit" id="btnEnviar" class="btn-primary px-12 py-4 rounded-2xl font-black text-sm flex items-center gap-3 active:scale-95">
-                                <i data-lucide="send" class="w-5 h-5"></i> REGISTRAR NOVEDAD
+                        <div class="flex items-center justify-end pt-8">
+                            <button type="submit" id="btnEnviar" class="btn-primary px-12 py-5 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl">
+                                <i data-lucide="save" class="w-5 h-5"></i> GUARDAR RECLAMO
                             </button>
                         </div>
                     </form>
@@ -139,49 +131,36 @@
         </div>
 
         <div id="modalHistorico" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-6">
-            <div class="bg-white w-full max-w-7xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-white/20">
-                <div class="p-8 border-b flex flex-col md:flex-row justify-between items-center bg-ocasa-black text-white gap-6">
+            <div class="bg-white w-full max-w-7xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                <div class="p-8 border-b flex justify-between items-center bg-ocasa-black text-white">
                     <div class="flex items-center gap-4">
-                        <div class="bg-ocasa-cyan p-2 rounded-lg">
-                            <i data-lucide="bar-chart-3" class="text-white w-6 h-6"></i>
+                        <div class="bg-ocasa-cyan p-2 rounded-lg text-white">
+                            <i data-lucide="database" class="w-6 h-6"></i>
                         </div>
-                        <div>
-                            <h3 class="font-black text-xl uppercase tracking-tighter">Panel de Control Operativo</h3>
-                            <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Monitoreo de Recurrencia y Siniestros</p>
-                        </div>
+                        <h3 class="font-black text-xl uppercase tracking-tighter">Panel de Reclamos Registrados</h3>
                     </div>
-                    
-                    <div class="relative w-full md:w-[450px]">
-                        <i data-lucide="search" class="absolute left-4 top-3.5 text-gray-400 w-5 h-5"></i>
-                        <input type="text" id="busquedaInput" placeholder="Buscar por Remito, Tipo o Descripción..." class="w-full bg-white/10 border border-white/10 rounded-2xl py-3.5 pl-12 pr-6 text-sm outline-none focus:bg-white focus:text-black transition-all font-medium">
+                    <div class="relative w-96">
+                        <i data-lucide="search" class="absolute left-4 top-3 text-gray-400 w-4 h-4"></i>
+                        <input type="text" id="busquedaInput" placeholder="Buscar por ID o Problema..." class="w-full bg-white/10 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm outline-none focus:bg-white focus:text-black">
                     </div>
-
-                    <button id="cerrarModal" class="p-3 hover:bg-white/10 rounded-full transition-all text-gray-400 hover:text-white">
+                    <button id="cerrarModal" class="p-2 hover:bg-white/10 rounded-full text-white">
                         <i data-lucide="x" class="w-8 h-8"></i>
                     </button>
                 </div>
-
                 <div class="flex-1 overflow-auto p-8 custom-scroll">
-                    <table class="w-full text-left border-separate border-spacing-y-3">
-                        <thead class="sticky top-0 bg-white z-10">
-                            <tr class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b">
-                                <th class="pb-4 px-4">Fecha de Carga</th>
-                                <th class="pb-4 px-4">N° Remito</th>
-                                <th class="pb-4 px-4">Tipo</th>
-                                <th class="pb-4 px-4">Descripción</th>
-                                <th class="pb-4 px-4 text-center">Alertas / Estado</th>
+                    <table class="w-full text-left border-separate border-spacing-y-2">
+                        <thead>
+                            <tr class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <th class="px-4">Fecha</th>
+                                <th class="px-4">ID Reclamo</th>
+                                <th class="px-4">Tipo de Reclamo</th>
+                                <th class="px-4">Detalle</th>
+                                <th class="px-4">Ubicación</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo" class="text-sm">
-                            </tbody>
+                        <tbody id="tablaCuerpo" class="text-sm"></tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <div id="msgExito" class="hidden fixed bottom-10 right-10 animate-bounce z-50">
-            <div class="bg-ocasa-cyan text-white px-8 py-5 rounded-2xl flex items-center gap-4 font-black shadow-2xl border-b-4 border-black/20">
-                <i data-lucide="check-circle" class="w-7 h-7"></i> REGISTRO SINCRONIZADO
             </div>
         </div>
     </main>
@@ -191,111 +170,82 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
         let datosHistoricos = [];
 
-        // RELOJ TIEMPO REAL
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 
-        // FORMULARIO
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
             const payload = {
-                fecha: new Date().toLocaleString(), 
+                fecha: new Date().toLocaleString(),
                 tipo: document.getElementById('tipo').value,
                 remito: document.getElementById('remito').value.trim().toUpperCase(),
                 descripcion: document.getElementById('descripcion').value,
                 prioridad: document.getElementById('prioridad').value,
-                resolucion: "", 
                 estado: document.getElementById('estado').value,
                 usuario: "Gonzalo Dorrego"
             };
-
             btn.disabled = true;
-            btn.innerHTML = `<span class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> PROCESANDO...`;
-
+            btn.innerText = "Sincronizando...";
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                document.getElementById('msgExito').classList.remove('hidden');
                 document.getElementById('formReclamo').reset();
-                setTimeout(() => document.getElementById('msgExito').classList.add('hidden'), 4000);
-            } catch (error) {
-                alert('Fallo de conexión.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i> REGISTRAR NOVEDAD`;
-                lucide.createIcons();
-            }
+                alert("¡Reclamo Guardado!");
+            } catch (error) { alert("Error"); }
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="save" class="w-5 h-5"></i> GUARDAR RECLAMO`;
+            lucide.createIcons();
         });
 
-        // PANEL DE CONTROL
         async function cargarPanel() {
             const tabla = document.getElementById('tablaCuerpo');
-            tabla.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest italic text-xs">Obteniendo datos de red OCASA...</td></tr>';
-            
+            tabla.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-400 animate-pulse">Consultando base de datos OCASA...</td></tr>';
             try {
                 const response = await fetch(WEB_APP_URL);
                 datosHistoricos = await response.json();
                 renderizarTabla(datosHistoricos);
-            } catch (e) { 
-                tabla.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-red-500 font-bold uppercase">Error de enlace.</td></tr>'; 
-            }
+            } catch (e) { tabla.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-red-500">Error de red</td></tr>'; }
         }
 
         function renderizarTabla(data) {
             const tabla = document.getElementById('tablaCuerpo');
             tabla.innerHTML = '';
             
-            const conteoRemitos = data.reduce((acc, item) => {
+            const conteo = data.reduce((acc, item) => {
                 const r = item.remito?.toUpperCase();
                 acc[r] = (acc[r] || 0) + 1;
                 return acc;
             }, {});
 
             data.forEach(item => {
-                const rNormalized = item.remito?.toUpperCase();
-                const esRecurrente = conteoRemitos[rNormalized] > 1;
-                const esSiniestro = item.tipo?.toLowerCase().includes("siniestro");
-                const esCritico = item.prioridad?.toLowerCase().includes("alta") || item.prioridad?.toLowerCase().includes("crít");
-
-                const rowClass = esRecurrente ? 'recurrence-alert' : 'bg-gray-50/50 hover:bg-cyan-50/50 transition-colors';
-
+                const esRecurrente = conteo[item.remito?.toUpperCase()] > 1;
                 tabla.innerHTML += `
-                    <tr class="${rowClass} rounded-2xl overflow-hidden transition-all shadow-sm">
-                        <td class="py-5 px-5 font-bold text-gray-400 text-[11px]">${item.fecha}</td>
-                        <td class="py-5 px-5 font-black text-gray-800 tracking-tighter">${item.remito}</td>
-                        <td class="py-5 px-5">
-                            <span class="font-bold text-gray-700 uppercase text-[12px]">${item.tipo}</span>
-                        </td>
-                        <td class="py-5 px-5 text-gray-600 text-[12px] max-w-md italic">${item.descripcion || '-'}</td>
-                        <td class="py-5 px-5">
-                            <div class="flex flex-wrap justify-end gap-2">
-                                ${esRecurrente ? '<span class="px-2 py-1 rounded-md bg-red-600 text-white text-[9px] font-black uppercase animate-pulse">RECURRENTE</span>' : ''}
-                                ${esSiniestro ? '<span class="px-2 py-1 rounded-md bg-black text-ocasa-cyan text-[9px] font-black uppercase tracking-widest">SINIESTRO</span>' : ''}
-                                ${esCritico ? '<span class="px-2 py-1 rounded-md bg-red-100 text-red-600 text-[9px] font-black uppercase">ALTA</span>' : ''}
-                                <span class="px-2 py-1 rounded-md bg-cyan-100 text-cyan-800 text-[9px] font-black uppercase">${item.estado || 'PENDIENTE'}</span>
-                            </div>
+                    <tr class="${esRecurrente ? 'recurrence-alert' : 'bg-gray-50 hover:bg-cyan-50'} rounded-xl overflow-hidden shadow-sm">
+                        <td class="py-4 px-4 font-bold text-gray-400 text-[11px]">${item.fecha}</td>
+                        <td class="py-4 px-4 font-black text-gray-800">${item.remito}</td>
+                        <td class="py-4 px-4 font-bold text-gray-700">${item.tipo}</td>
+                        <td class="py-4 px-4 text-gray-600 italic text-xs max-w-xs truncate">${item.descripcion || '-'}</td>
+                        <td class="py-4 px-4">
+                            <span class="px-2 py-1 rounded bg-cyan-100 text-cyan-800 text-[9px] font-black uppercase">${item.estado}</span>
+                            ${esRecurrente ? '<span class="ml-2 px-2 py-1 rounded bg-red-600 text-white text-[9px] font-black">REPETIDO</span>' : ''}
                         </td>
                     </tr>`;
             });
         }
-
-        // BÚSQUEDA DINÁMICA
-        document.getElementById('busquedaInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtrados = datosHistoricos.filter(item => 
-                (item.remito?.toLowerCase() || "").includes(term) || 
-                (item.tipo?.toLowerCase() || "").includes(term) || 
-                (item.descripcion?.toLowerCase() || "").includes(term)
-            );
-            renderizarTabla(filtrados);
-        });
 
         document.getElementById('btnHistorico').addEventListener('click', () => {
             document.getElementById('modalHistorico').classList.remove('hidden');
             cargarPanel();
         });
         document.getElementById('cerrarModal').addEventListener('click', () => document.getElementById('modalHistorico').classList.add('hidden'));
+
+        document.getElementById('busquedaInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtrados = datosHistoricos.filter(item => 
+                (item.remito?.toLowerCase() || "").includes(term) || 
+                (item.tipo?.toLowerCase() || "").includes(term)
+            );
+            renderizarTabla(filtrados);
+        });
     </script>
 </body>
 </html>
