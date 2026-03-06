@@ -78,7 +78,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Resolución</label>
-                                <input type="text" id="resolucion" placeholder="Acción tomada (opcional)" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
+                                <input type="text" id="resolucion" placeholder="Acción tomada" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
                             </div>
                             <div class="space-y-2">
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Estado</label>
@@ -136,9 +136,6 @@
                             </tbody>
                     </table>
                 </div>
-                <div class="p-4 bg-gray-50 border-t text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                    Sincronización directa con Google Sheets
-                </div>
             </div>
         </div>
 
@@ -151,7 +148,7 @@
 
     <script>
         lucide.createIcons();
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQU0wy13OxPyf-a44UI7Ro2Q6gfVG-Aqnv4SJ6_qH_gi2PILvFMBS1j0DASXZ27sOjbA/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRynXjc9Ijn2CobYr08kaBJD0A5QVa8enxkVLFBTafIvFLF1NjpxPb9lygDePQy571EA/exec';
 
         // ENVÍO DE FORMULARIO
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
@@ -186,14 +183,14 @@
             }
         });
 
-        // CARGA DE HISTORIAL CORREGIDO
+        // CARGA DE HISTORIAL
         const modal = document.getElementById('modalHistorico');
         const btnHist = document.getElementById('btnHistorico');
         const btnCerrar = document.getElementById('cerrarModal');
         const tabla = document.getElementById('tablaCuerpo');
 
         async function cargarHistorico() {
-            tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest">Obteniendo datos de OCASA...</td></tr>';
+            tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest">Sincronizando con OCASA Cloud...</td></tr>';
             
             try {
                 const response = await fetch(WEB_APP_URL);
@@ -209,13 +206,13 @@
                             <td class="py-4 px-3 text-[11px] font-bold text-gray-400 whitespace-nowrap">${item.fecha}</td>
                             <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
                             <td class="py-4 px-3 font-black text-gray-500">${item.remito}</td>
-                            <td class="py-4 px-3 text-gray-600 max-w-xs truncate">${item.descripcion}</td>
+                            <td class="py-4 px-3 text-gray-600 text-xs italic">${item.descripcion || '-'}</td>
                             <td class="py-4 px-3">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgePrio}">
                                     ${item.prioridad}
                                 </span>
                             </td>
-                            <td class="py-4 px-3 text-gray-500 italic text-xs">${item.resolucion || '-'}</td>
+                            <td class="py-4 px-3 text-gray-500 text-xs">${item.resolucion || '-'}</td>
                             <td class="py-4 px-3">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgeEst}">
                                     ${item.estado || 'Pendiente'}
@@ -224,7 +221,7 @@
                         </tr>`;
                 });
             } catch (e) { 
-                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold uppercase tracking-widest">Error de Sincronización.</td></tr>'; 
+                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold uppercase tracking-widest">Error al leer la base de datos.</td></tr>'; 
             }
         }
 
