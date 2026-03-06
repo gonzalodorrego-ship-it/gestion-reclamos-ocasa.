@@ -9,10 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .ocasa-yellow { color: #FFD700; }
         .bg-ocasa-yellow { background-color: #FFD700; }
         .bg-ocasa-black { background-color: #1a1a1a; }
-        .transition-all { transition: all 0.3s ease; }
+        .ocasa-yellow { color: #FFD700; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
@@ -22,7 +21,7 @@
 
     <aside class="w-64 bg-ocasa-black text-white flex flex-col shadow-2xl z-50">
         <div class="p-6 border-b border-white/10 flex flex-col items-center gap-4 text-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
+            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto">
             <span class="text-[10px] text-yellow-400 font-bold tracking-widest uppercase opacity-70">Logística Integral</span>
         </div>
         <nav class="flex-1 px-4 py-8 space-y-2">
@@ -39,13 +38,13 @@
     <main class="flex-1 flex flex-col overflow-hidden relative">
         <header class="h-20 bg-white border-b border-gray-100 px-8 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-6">
-                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
+                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto">
                 <h2 class="text-xl font-bold text-gray-800 border-l pl-6 border-gray-100 uppercase tracking-tighter">Gestión de Reclamos</h2>
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right">
                     <p class="text-sm font-bold leading-none mb-1">Gonzalo Dorrego</p>
-                    <p class="text-[11px] text-gray-400 font-bold uppercase">Admin</p>
+                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Admin Sistema</p>
                 </div>
                 <div class="w-10 h-10 bg-ocasa-black rounded-full flex items-center justify-center text-ocasa-yellow"><i data-lucide="user" class="w-5 h-5"></i></div>
             </div>
@@ -53,39 +52,51 @@
 
         <div class="flex-1 overflow-y-auto p-10 bg-gray-50/50">
             <div class="max-w-4xl mx-auto">
-                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all hover:shadow-2xl hover:shadow-black/5">
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
                     <div class="bg-ocasa-black h-1.5 w-full"></div>
                     <form id="formReclamo" class="p-8 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Tipo de Incidencia</label>
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Tipo</label>
                                 <select id="tipo" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-yellow-400 outline-none font-bold text-sm">
+                                    <option>Reclamo</option>
                                     <option>Despacho</option>
                                     <option>Inventario</option>
-                                    <option>Recepción</option>
-                                    <option>Proceso Interno</option>
                                 </select>
                             </div>
                             <div class="space-y-2">
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">N° Remito / Orden</label>
-                                <input type="text" id="remito" placeholder="Ej: EX-9003" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">N° Remito</label>
+                                <input type="text" id="remito" placeholder="Ej: 0064-00076543" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Asunto del Reclamo</label>
-                            <input type="text" id="asunto" required placeholder="Título breve del problema" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
-                        </div>
+
                         <div class="space-y-2">
                             <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Descripción</label>
-                            <textarea id="descripcion" rows="4" required placeholder="Describe lo ocurrido..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm resize-none"></textarea>
+                            <textarea id="descripcion" rows="2" required placeholder="Detalle del reclamo..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm resize-none"></textarea>
                         </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Resolución</label>
+                                <input type="text" id="resolucion" placeholder="Acción tomada..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm font-medium">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-widest">Estado</label>
+                                <select id="estado" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-yellow-400 outline-none font-bold text-sm">
+                                    <option>Pendiente</option>
+                                    <option>En Proceso</option>
+                                    <option>Finalizado</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-between pt-6 border-t border-gray-100">
                             <div class="flex items-center gap-3">
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-tight">Prioridad:</span>
-                                <select id="prioridad" class="px-5 py-2 rounded-full border-2 border-orange-200 bg-orange-50 text-orange-700 text-xs font-black outline-none transition-all cursor-pointer shadow-inner">
+                                <select id="prioridad" class="px-5 py-2 rounded-full border-2 border-orange-200 bg-orange-50 text-orange-700 text-xs font-black outline-none">
                                     <option value="Baja">Baja</option>
-                                    <option value="Media" selected>Media</option>
-                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Alta" selected>Alta</option>
                                 </select>
                             </div>
                             <button type="submit" id="btnEnviar" class="bg-ocasa-black text-white px-10 py-4 rounded-2xl font-black text-sm flex items-center gap-3 hover:bg-black transition-all shadow-xl active:scale-95">
@@ -98,7 +109,7 @@
         </div>
 
         <div id="modalHistorico" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-5xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="bg-white w-full max-w-6xl rounded-3xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
                 <div class="p-6 border-b flex justify-between items-center bg-ocasa-black text-white">
                     <div class="flex items-center gap-3">
                         <i data-lucide="history" class="text-ocasa-yellow"></i>
@@ -112,121 +123,89 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky top-0 bg-white shadow-sm z-10">
                             <tr class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b">
-                                <th class="py-4 px-3">Fecha de Carga</th>
+                                <th class="py-4 px-3">Fecha</th>
                                 <th class="py-4 px-3">Tipo</th>
-                                <th class="py-4 px-3">N° Remito</th>
-                                <th class="py-4 px-3">Asunto</th>
+                                <th class="py-4 px-3">Remito</th>
+                                <th class="py-4 px-3">Descripción</th>
                                 <th class="py-4 px-3">Prioridad</th>
+                                <th class="py-4 px-3">Estado</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600">
-                            </tbody>
+                        <tbody id="tablaCuerpo" class="text-sm font-medium text-gray-600"></tbody>
                     </table>
-                </div>
-                <div class="p-4 bg-gray-50 border-t text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                    Conexión directa con Google Sheets v3.0
                 </div>
             </div>
         </div>
 
         <div id="msgExito" class="hidden fixed bottom-8 right-8 animate-bounce z-50">
             <div class="bg-green-600 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold shadow-2xl">
-                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Registro enviado correctamente!
+                <i data-lucide="check-circle" class="w-6 h-6"></i> ¡Sincronizado con el Sheet!
             </div>
         </div>
     </main>
 
     <script>
         lucide.createIcons();
-
-        // TU NUEVA URL ACTIVA
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQU0wy13OxPyf-a44UI7Ro2Q6gfVG-Aqnv4SJ6_qH_gi2PILvFMBS1j0DASXZ27sOjbA/exec';
 
-        const modal = document.getElementById('modalHistorico');
-        const btnHist = document.getElementById('btnHistorico');
-        const btnCerrar = document.getElementById('cerrarModal');
-        const tablaCuerpo = document.getElementById('tablaCuerpo');
-
-        // FUNCIÓN CARGAR HISTORIAL
-        async function cargarHistorico() {
-            tablaCuerpo.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase tracking-widest">Sincronizando con Base de Datos...</td></tr>';
-            
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                
-                tablaCuerpo.innerHTML = '';
-                
-                if (data.length === 0) {
-                    tablaCuerpo.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-400 italic">No hay registros cargados aún.</td></tr>';
-                    return;
-                }
-
-                data.forEach(item => {
-                    const colorPrioridad = item.prioridad === 'Alta' ? 'text-red-600 bg-red-50' : item.prioridad === 'Media' ? 'text-orange-600 bg-orange-50' : 'text-green-600 bg-green-50';
-                    
-                    tablaCuerpo.innerHTML += `
-                        <tr class="border-b hover:bg-yellow-50/30 transition-all group">
-                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400">${item.fecha}</td>
-                            <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
-                            <td class="py-4 px-3 font-black text-gray-500 group-hover:text-black transition-colors">${item.remito}</td>
-                            <td class="py-4 px-3 text-gray-600">${item.asunto}</td>
-                            <td class="py-4 px-3">
-                                <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase ${colorPrioridad}">
-                                    ${item.prioridad}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } catch (error) {
-                tablaCuerpo.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-red-500 font-bold uppercase tracking-widest">Error de Sincronización. Revisa los permisos del Sheet.</td></tr>';
-            }
-        }
-
-        btnHist.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-            cargarHistorico();
-        });
-
-        btnCerrar.addEventListener('click', () => modal.classList.add('hidden'));
-
-        // ENVÍO DE FORMULARIO
+        // LÓGICA ENVÍO (Sincronizada con el orden de tu planilla)
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
-            const exito = document.getElementById('msgExito');
-
+            
             const payload = {
-                fecha: new Date().toLocaleString(),
+                fecha: new Date().toLocaleDateString(), 
                 tipo: document.getElementById('tipo').value,
                 remito: document.getElementById('remito').value,
-                asunto: document.getElementById('asunto').value,
                 descripcion: document.getElementById('descripcion').value,
                 prioridad: document.getElementById('prioridad').value,
+                resolucion: document.getElementById('resolucion').value,
+                estado: document.getElementById('estado').value,
                 usuario: "Gonzalo Dorrego"
             };
 
             btn.disabled = true;
-            btn.innerHTML = "PROCESANDO...";
+            btn.innerHTML = "SINCRONIZANDO...";
 
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payload)
-                });
-                exito.classList.remove('hidden');
+                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                document.getElementById('msgExito').classList.remove('hidden');
                 document.getElementById('formReclamo').reset();
-                setTimeout(() => exito.classList.add('hidden'), 5000);
+                setTimeout(() => document.getElementById('msgExito').classList.add('hidden'), 4000);
             } catch (error) {
-                alert('Error al enviar.');
+                alert('Error al conectar con la planilla.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i data-lucide="send" class="w-4 h-4 text-ocasa-yellow"></i> ENVIAR A PLANILLA`;
                 lucide.createIcons();
             }
         });
+
+        // LÓGICA HISTÓRICO
+        const modal = document.getElementById('modalHistorico');
+        document.getElementById('btnHistorico').addEventListener('click', async () => {
+            modal.classList.remove('hidden');
+            const tabla = document.getElementById('tablaCuerpo');
+            tabla.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-400 animate-pulse font-black uppercase">Obteniendo datos de OCASA...</td></tr>';
+            
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const data = await response.json();
+                tabla.innerHTML = '';
+                data.forEach(item => {
+                    tabla.innerHTML += `
+                        <tr class="border-b hover:bg-yellow-50/30 transition-all">
+                            <td class="py-4 px-3 text-[11px] font-bold text-gray-400">${item.fecha}</td>
+                            <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
+                            <td class="py-4 px-3 font-black text-gray-500">${item.remito}</td>
+                            <td class="py-4 px-3 text-gray-600 truncate max-w-[200px]">${item.descripcion}</td>
+                            <td class="py-4 px-3"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${item.prioridad === 'Alta' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}">${item.prioridad}</span></td>
+                            <td class="py-4 px-3 font-bold text-green-600">${item.estado || 'Pendiente'}</td>
+                        </tr>`;
+                });
+            } catch (e) { tabla.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-500 font-bold">Error de conexión.</td></tr>'; }
+        });
+        document.getElementById('cerrarModal').addEventListener('click', () => modal.classList.add('hidden'));
     </script>
 </body>
 </html>
