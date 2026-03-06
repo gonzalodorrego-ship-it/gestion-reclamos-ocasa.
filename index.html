@@ -21,7 +21,7 @@
 
     <aside class="w-64 bg-ocasa-black text-white flex flex-col shadow-2xl z-50">
         <div class="p-6 border-b border-white/10 flex flex-col items-center gap-4 text-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto">
+            <img src="logo_ocasa.png" alt="OCASA" class="w-32 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
             <span class="text-[10px] text-yellow-400 font-black tracking-widest uppercase opacity-70">Logística Integral</span>
         </div>
         <nav class="flex-1 px-4 py-8 space-y-2">
@@ -38,7 +38,7 @@
     <main class="flex-1 flex flex-col overflow-hidden relative">
         <header class="h-20 bg-white border-b border-gray-100 px-8 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-6">
-                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto">
+                <img src="logo_ocasa.png" alt="OCASA" class="w-24 h-auto" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocasa_logo.png'">
                 <h2 class="text-xl font-bold text-gray-800 border-l pl-6 border-gray-100 uppercase tracking-tighter">Gestión de Reclamos</h2>
             </div>
             <div class="flex items-center gap-3">
@@ -120,7 +120,7 @@
                             <tr class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b">
                                 <th class="py-4 px-3">Fecha</th>
                                 <th class="py-4 px-3">Tipo</th>
-                                <th class="py-4 px-3">Remito</th>
+                                <th class="py-4 px-3">N° Remito</th>
                                 <th class="py-4 px-3">Descripción</th>
                                 <th class="py-4 px-3">Prioridad</th>
                                 <th class="py-4 px-3">Resolución</th>
@@ -142,7 +142,7 @@
 
     <script>
         lucide.createIcons();
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRynXjc9Ijn2CobYr08kaBJD0A5QVa8enxkVLFBTafIvFLF1NjpxPb9lygDePQy571EA/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
 
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -154,7 +154,7 @@
                 remito: document.getElementById('remito').value,
                 descripcion: document.getElementById('descripcion').value,
                 prioridad: document.getElementById('prioridad').value,
-                resolucion: "", // Vacío por ahora, se llena en el Sheet
+                resolucion: "", 
                 estado: document.getElementById('estado').value,
                 usuario: "Gonzalo Dorrego"
             };
@@ -163,12 +163,14 @@
             btn.innerHTML = "CARGANDO...";
 
             try {
+                // El envío POST no requiere manejar la respuesta JSON si usamos no-cors
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 document.getElementById('msgExito').classList.remove('hidden');
                 document.getElementById('formReclamo').reset();
                 setTimeout(() => document.getElementById('msgExito').classList.add('hidden'), 4000);
             } catch (error) {
-                alert('Error al enviar.');
+                console.error("Error envío:", error);
+                alert('Error al enviar. Revisa la consola.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i data-lucide="send" class="w-4 h-4 text-ocasa-yellow"></i> ENVIAR A PLANILLA`;
@@ -176,7 +178,6 @@
             }
         });
 
-        // LÓGICA DE HISTORIAL CORREGIDA PARA DESCRIPCIÓN
         const modal = document.getElementById('modalHistorico');
         document.getElementById('btnHistorico').addEventListener('click', async () => {
             modal.classList.remove('hidden');
@@ -190,14 +191,14 @@
                 
                 data.forEach(item => {
                     const badgePrio = item.prioridad === 'Alta' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600';
-                    const badgeEst = item.estado === 'Finalizado' || item.estado === 'Finzalizado' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600';
+                    const badgeEst = (item.estado || "").toLowerCase().includes("final") ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600';
 
                     tabla.innerHTML += `
                         <tr class="border-b hover:bg-yellow-50/30 transition-all group">
                             <td class="py-4 px-3 text-[11px] font-bold text-gray-400">${item.fecha}</td>
                             <td class="py-4 px-3 font-bold text-gray-800">${item.tipo}</td>
                             <td class="py-4 px-3 font-black text-gray-500">${item.remito}</td>
-                            <td class="py-4 px-3 text-gray-600 text-xs italic max-w-xs truncate">${item.descripcion || '-'}</td>
+                            <td class="py-4 px-3 text-gray-600 text-xs italic max-w-xs truncate" title="${item.descripcion || ''}">${item.descripcion || '-'}</td>
                             <td class="py-4 px-3">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${badgePrio}">
                                     ${item.prioridad}
@@ -212,7 +213,8 @@
                         </tr>`;
                 });
             } catch (e) { 
-                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold">Error de sincronización.</td></tr>'; 
+                console.error("Error historial:", e);
+                tabla.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-red-500 font-bold uppercase">Error de sincronización con Google Sheets.</td></tr>'; 
             }
         });
 
