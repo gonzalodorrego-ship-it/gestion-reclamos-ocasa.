@@ -3,68 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCASA - Gestión Operativa de Reclamos</title>
+    <title>OCASA - Gestión de Reclamos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --ocasa-cyan: #0097A7; }
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
-        .text-ocasa-cyan { color: var(--ocasa-cyan); }
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; overflow: hidden; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
-        
-        /* Estilos de Scroll */
+        .text-ocasa-cyan { color: var(--ocasa-cyan); }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: var(--ocasa-cyan); border-radius: 10px; }
         
-        /* Badges de Estado */
-        .badge-pendiente { background-color: #FEF3C7; color: #92400E; }
-        .badge-proceso { background-color: #DBEAFE; color: #1E40AF; }
-        .badge-finalizado { background-color: #D1FAE5; color: #065F46; }
+        .menu-item { transition: all 0.2s ease; border-radius: 12px; }
+        .menu-item:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
         
-        /* Animación de Carga */
-        .loader { border-top-color: var(--ocasa-cyan); animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Animación para el desplegable */
+        #submenuCarga { transition: max-height 0.3s ease-out; overflow: hidden; max-height: 0; }
+        #submenuCarga.open { max-height: 200px; }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body class="h-screen flex">
 
-    <aside class="w-68 bg-white border-r border-slate-200 flex flex-col z-50">
-        <div class="p-8 border-b border-slate-100 flex flex-col items-center gap-4">
-            <div class="h-16 flex items-center justify-center">
-                <img src="logo_ocasa.png" alt="OCASA" class="max-w-[160px] h-auto object-contain">
-            </div>
-            <span class="text-[10px] text-slate-400 font-black tracking-[0.2em] uppercase">Logística Integral</span>
+    <aside class="w-72 bg-white border-r border-slate-200 flex flex-col z-50">
+        <div class="p-8 border-b border-slate-100 flex flex-col items-center">
+            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[150px] mb-2">
+            <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase">Logística Integral</span>
         </div>
         
-        <nav class="flex-1 px-4 py-8 space-y-3 custom-scroll overflow-y-auto">
-            
-            <div class="relative">
-                <button id="btnNuevoDropdown" class="w-full flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-ocasa-cyan text-white font-bold shadow-lg shadow-cyan-500/10 active:scale-95 transition-all">
+        <nav class="flex-1 p-4 space-y-2">
+            <div>
+                <button onclick="toggleSubmenu()" class="w-full flex items-center justify-between px-4 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-transform">
                     <div class="flex items-center gap-3">
                         <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                        <span class="text-sm uppercase tracking-tight">Nuevo</span>
+                        <span class="text-sm">NUEVO</span>
                     </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="iconNuevoChevron"></i>
+                    <i data-lucide="chevron-down" class="w-4 h-4" id="chevronIcon"></i>
                 </button>
                 
-                <div id="dropdownNuevoContent" class="hidden absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-10">
-                    <button id="openFormBtn" class="w-full flex items-center gap-3 p-3 rounded-lg text-slate-700 hover:bg-cyan-50 hover:text-ocasa-cyan font-bold transition-all text-sm uppercase">
-                        <i data-lucide="file-plus-2" class="w-4 h-4"></i>
-                        Registrar Reclamo
+                <div id="submenuCarga" class="bg-slate-50 mt-2 rounded-xl border border-slate-100">
+                    <button onclick="abrirModalCarga()" class="w-full text-left px-5 py-3 text-xs font-bold text-slate-600 hover:text-ocasa-cyan flex items-center gap-2">
+                        <i data-lucide="file-plus" class="w-4 h-4"></i>
+                        CARGAR NUEVO RECLAMO
                     </button>
                 </div>
             </div>
 
-            <button onclick="location.reload()" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-slate-100 text-ocasa-cyan font-bold shadow-sm active:scale-95 transition-all">
-                <i data-lucide="layout-list" class="w-5 h-5"></i> 
-                <span class="text-sm uppercase tracking-tight">Ver Histórico</span>
+            <button onclick="location.reload()" class="w-full flex items-center gap-3 px-4 py-4 menu-item text-slate-500 font-bold">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span class="text-sm uppercase">Histórico de Reclamos</span>
             </button>
         </nav>
 
         <div class="p-6 border-t border-slate-100 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-black text-xs text-ocasa-cyan border border-slate-200">GD</div>
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-ocasa-cyan border border-slate-200 text-xs">GD</div>
             <div class="flex flex-col">
                 <span class="text-xs font-bold text-slate-900">Gonzalo Dorrego</span>
                 <span class="text-[9px] text-slate-400 uppercase font-black">Admin Sistema</span>
@@ -72,236 +64,164 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-        
-        <header class="h-20 bg-white border-b border-slate-100 px-10 flex items-center justify-between shadow-sm z-40">
-            <h2 class="text-lg font-black text-slate-800 uppercase tracking-tighter flex items-center gap-3">
-                <span class="w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                Histórico Operativo
-            </h2>
+    <main class="flex-1 flex flex-col">
+        <header class="h-24 bg-white border-b border-slate-100 px-10 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-4">
+                <span class="w-1.5 h-8 bg-ocasa-cyan rounded-full"></span>
+                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Historial Operativo</h2>
+            </div>
 
-            <div class="flex items-center gap-2">
-                <div class="relative w-80">
+            <div class="flex items-center gap-3">
+                <div class="relative">
                     <i data-lucide="search" class="absolute left-4 top-3 text-slate-400 w-4 h-4"></i>
-                    <input type="text" id="busquedaInput" placeholder="Buscar por ID, Categoría o Detalle..." class="w-full bg-slate-100 border border-slate-200 rounded-full py-2.5 pl-11 pr-5 text-sm outline-none focus:ring-2 focus:ring-cyan-100 focus:bg-white transition-all">
+                    <input type="text" id="inputBuscar" placeholder="Buscar por ID, Remito o Detalle..." 
+                           class="w-96 bg-slate-100 border border-slate-200 rounded-full py-3 pl-12 pr-6 text-sm outline-none focus:ring-2 focus:ring-cyan-100 focus:bg-white transition-all">
                 </div>
-                <button id="btnBuscar" class="bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-black transition-all active:scale-95">
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    Filtrar
+                <button onclick="filtrarReclamos()" class="bg-slate-900 text-white px-8 py-3 rounded-full font-bold text-xs uppercase hover:bg-black transition-all active:scale-95 shadow-md">
+                    Buscar
                 </button>
             </div>
-            
+
             <div class="text-right">
-                <span id="clock" class="text-sm font-bold text-slate-700 block">00:00:00</span>
-                <span class="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Sincronizado</span>
+                <span id="reloj" class="text-sm font-black text-slate-700 block">00:00:00</span>
+                <span class="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Estado: Sincronizado</span>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-12 bg-slate-50 custom-scroll">
-            <div class="max-w-[1400px] mx-auto space-y-6">
-                
-                <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-12 w-12"></div>
-                    <span class="font-bold text-sm uppercase tracking-widest">Obteniendo datos...</span>
-                </div>
-
-                <div id="historicoLista" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="flex-1 overflow-y-auto p-10 bg-slate-50 custom-scroll">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase">Fecha</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase">ID / Remito</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase">Tipo</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase">Descripción</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla" class="text-sm">
+                            </tbody>
+                    </table>
+                    <div id="loader" class="p-20 text-center flex flex-col items-center gap-4">
+                        <div class="animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-cyan-600"></div>
+                        <span class="text-xs font-bold text-slate-400 uppercase">Cargando base de datos...</span>
                     </div>
-
-                <div id="noResults" class="hidden text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-sm">
-                    No se encontraron reclamos con ese criterio.
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="formModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-slate-100">
+    <div id="modalCarga" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
             <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div class="flex items-center gap-4">
-                    <div class="bg-ocasa-cyan/10 p-2.5 rounded-xl text-ocasa-cyan">
-                        <i data-lucide="file-plus-2" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="font-black text-xl uppercase tracking-tighter text-slate-800">Registrar Nuevo Reclamo</h3>
-                </div>
-                <button id="closeFormBtn" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
-                    <i data-lucide="x" class="w-8 h-8"></i>
-                </button>
+                <h3 class="font-black text-lg text-slate-800 uppercase tracking-tighter">Nueva Carga de Reclamo</h3>
+                <button onclick="cerrarModalCarga()" class="p-2 hover:bg-slate-200 rounded-full transition-colors"><i data-lucide="x" class="w-6 h-6 text-slate-400"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-10 custom-scroll">
-                <form id="formReclamo" class="space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Tipo de Reclamo</label>
-                            <select id="tipo" required class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 transition-all">
-                                <option value="" disabled selected>Seleccione una categoría</option>
-                                <option value="Caja rota">📦 Caja rota / Dañada</option>
-                                <option value="Producto equivocado">🔄 Producto equivocado</option>
-                                <option value="Color equivocado">🎨 Color equivocado</option>
-                                <option value="No recibi mi producto">🚫 No recibí mi producto</option>
-                            </select>
-                        </div>
-                        <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">ID de Reclamo (N° Remito)</label>
-                            <input type="text" id="remito" required placeholder="Ej: REC-123456" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 uppercase transition-all">
-                        </div>
+            <form id="formReclamo" class="p-10 space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Tipo de Reclamo</label>
+                        <select id="tipo" required class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none font-bold text-slate-700">
+                            <option value="Caja rota">Caja rota / Dañada</option>
+                            <option value="Producto equivocado">Producto equivocado</option>
+                            <option value="No recibí producto">No recibí mi producto</option>
+                        </select>
                     </div>
-
-                    <div class="space-y-3">
-                        <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Descripción Detallada</label>
-                        <textarea id="descripcion" rows="4" required placeholder="Ingrese el detalle completo del reclamo aquí..." class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-medium text-slate-700 resize-none transition-all"></textarea>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">N° Remito</label>
+                        <input type="text" id="remito" required placeholder="0000-000000" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none font-bold text-slate-700">
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-8">
-                        <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Estado Operativo</label>
-                            <select id="estado" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-100 outline-none font-bold text-slate-700">
-                                <option selected>Pendiente</option>
-                                <option>En Proceso</option>
-                                <option>Finalizado</option>
-                            </select>
-                        </div>
-                        <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Prioridad de Atención</label>
-                            <select id="prioridad" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-100 outline-none font-bold text-slate-700">
-                                <option value="Baja">Baja</option>
-                                <option value="Media" selected>Media</option>
-                                <option value="Alta">Alta / Crítica</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end pt-8">
-                        <button type="submit" id="btnEnviar" class="bg-ocasa-cyan text-white px-12 py-5 rounded-2xl font-black text-sm flex items-center gap-3 shadow-lg shadow-cyan-500/10 active:scale-95 transition-all">
-                            <i data-lucide="send" class="w-5 h-5"></i> REGISTRAR RECLAMO
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="msgExito" class="hidden fixed bottom-10 right-10 animate-bounce z-50">
-        <div class="bg-emerald-600 text-white px-8 py-5 rounded-2xl flex items-center gap-4 font-black shadow-2xl border-b-4 border-black/10">
-            <i data-lucide="check-circle" class="w-7 h-7"></i> RECLAMO SINCRONIZADO
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Descripción</label>
+                    <textarea id="descripcion" rows="3" required class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none text-slate-700 font-medium"></textarea>
+                </div>
+                <button type="submit" id="btnEnviar" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all">REGISTRAR EN PLANILLA</button>
+            </form>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
-        
-        // URL de tu Google Apps Script
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
-        let datosHistoricos = [];
+        let datosFull = [];
 
-        // 1. GESTIÓN DEL MENÚ DESPLEGABLE (NUEVO)
-        const btnNuevo = document.getElementById('btnNuevoDropdown');
-        const dropdownContent = document.getElementById('dropdownNuevoContent');
-        const iconChevron = document.getElementById('iconNuevoChevron');
+        // Reloj
+        setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000);
 
-        btnNuevo.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar que el clic cierre el dropdown inmediatamente
-            dropdownContent.classList.toggle('hidden');
-            iconChevron.classList.toggle('rotate-180');
-        });
+        // Lógica del Desplegable Lateral
+        function toggleSubmenu() {
+            document.getElementById('submenuCarga').classList.toggle('open');
+            document.getElementById('chevronIcon').classList.toggle('rotate-180');
+        }
 
-        // Cerrar el dropdown si se hace clic fuera
-        document.addEventListener('click', () => {
-            dropdownContent.classList.add('hidden');
-            iconChevron.classList.remove('rotate-180');
-        });
+        // Modales
+        function abrirModalCarga() { document.getElementById('modalCarga').classList.remove('hidden'); }
+        function cerrarModalCarga() { document.getElementById('modalCarga').classList.add('hidden'); }
 
-        // 2. GESTIÓN DEL MODAL DEL FORMULARIO
-        const openFormBtn = document.getElementById('openFormBtn');
-        const closeFormBtn = document.getElementById('closeFormBtn');
-        const formModal = document.getElementById('formModal');
+        // Cargar Historial al Inicio
+        async function cargarDatos() {
+            try {
+                const res = await fetch(WEB_APP_URL);
+                datosFull = await res.json();
+                renderizarTabla(datosFull);
+                document.getElementById('loader').classList.add('hidden');
+            } catch (e) { console.error("Error", e); }
+        }
 
-        openFormBtn.addEventListener('click', () => {
-            formModal.classList.remove('hidden');
-            dropdownContent.classList.add('hidden'); // Cerrar dropdown al abrir modal
-            iconChevron.classList.remove('rotate-180');
-        });
+        function renderizarTabla(data) {
+            const tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-50 hover:bg-slate-50/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-8 py-5 text-slate-400 font-medium text-xs">${item.fecha || '-'}</td>
+                    <td class="px-8 py-5 font-black text-slate-800 tracking-tight">${item.remito || '-'}</td>
+                    <td class="px-8 py-5 font-bold text-slate-600">${item.tipo || '-'}</td>
+                    <td class="px-8 py-5 text-slate-500 italic max-w-xs truncate">${item.descripcion || '-'}</td>
+                    <td class="px-8 py-5"><span class="px-3 py-1 bg-cyan-50 text-ocasa-cyan rounded-full text-[10px] font-black uppercase">${item.estado || 'PENDIENTE'}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
-        closeFormBtn.addEventListener('click', () => {
-            formModal.classList.add('hidden');
-        });
+        // Buscador
+        function filtrarReclamos() {
+            const query = document.getElementById('inputBuscar').value.toLowerCase();
+            const filtrados = datosFull.filter(i => 
+                i.remito.toLowerCase().includes(query) || 
+                i.descripcion.toLowerCase().includes(query) || 
+                i.tipo.toLowerCase().includes(query)
+            );
+            renderizarTabla(filtrados);
+        }
 
-        // 3. RELOJ TIEMPO REAL
-        setInterval(() => { 
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
-        }, 1000);
-
-        // 4. ENVÍO DEL FORMULARIO (NUEVO RECLAMO)
+        // Envío de Formulario
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            btn.innerText = "PROCESANDO...";
             
             const payload = {
                 fecha: new Date().toLocaleString(),
                 tipo: document.getElementById('tipo').value,
-                remito: document.getElementById('remito').value.trim().toUpperCase(),
+                remito: document.getElementById('remito').value,
                 descripcion: document.getElementById('descripcion').value,
-                prioridad: document.getElementById('prioridad').value,
-                resolucion: "", 
-                estado: document.getElementById('estado').value,
+                estado: "Pendiente",
                 usuario: "Gonzalo Dorrego"
             };
 
-            btn.disabled = true;
-            btn.innerHTML = `<span class="animate-spin loader rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span> GUARDANDO...`;
-
-            try {
-                // Envío POST usando no-cors (espera confirmación visual, no respuesta JSON)
-                await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                
-                // Éxito visual
-                document.getElementById('msgExito').classList.remove('hidden');
-                document.getElementById('formReclamo').reset();
-                formModal.classList.add('hidden'); // Cerrar modal
-
-                setTimeout(() => {
-                    document.getElementById('msgExito').classList.add('hidden');
-                    cargarHistorico(); // Recargar la lista principal
-                }, 3500);
-
-            } catch (error) {
-                console.error("Error envío:", error);
-                alert('Error al conectar con la planilla.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i> REGISTRAR RECLAMO`;
-                lucide.createIcons();
-            }
+            await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Reclamo guardado con éxito");
+            location.reload();
         });
 
-        // 5. CARGAR Y VISUALIZAR EL HISTÓRICO (LISTA EN INICIO)
-        async function cargarHistorico() {
-            const lista = document.getElementById('historicoLista');
-            const loading = document.getElementById('loadingIndicator');
-            const noResults = document.getElementById('noResults');
-
-            lista.innerHTML = '';
-            loading.classList.remove('hidden');
-            noResults.classList.add('hidden');
-
-            try {
-                const response = await fetch(WEB_APP_URL);
-                datosHistoricos = await response.json();
-                renderizarLista(datosHistoricos);
-            } catch (e) {
-                console.error("Error historial:", e);
-                lista.innerHTML = '<div class="col-span-3 text-center py-10 text-red-500 font-bold uppercase text-xs">Error de sincronización con la base de datos.</div>';
-            } finally {
-                loading.classList.add('hidden');
-            }
-        }
-
-        // Renderizar datos en formato Tarjeta (Lista visual)
-        function renderizarLista(data) {
-            const lista = document.getElementById('historicoLista');
-            const noResults = document.getElementById('noResults');
-            lista.innerHTML = '';
-
-            if (data.length === 0) {
-                noResults.classList.remove('hidden');
+        cargarDatos();
+    </script>
+</body>
+</html>
