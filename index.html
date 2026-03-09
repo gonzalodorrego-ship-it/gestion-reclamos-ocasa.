@@ -2,17 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCASA - Sistema de Gestión de Reclamos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OCASA - Gestión de Reclamos Roboto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --ocasa-cyan: #0097A7; }
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; overflow: hidden; }
+        /* Aplicación de Roboto a todo el documento */
+        body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; margin: 0; padding: 0; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         .text-ocasa-cyan { color: var(--ocasa-cyan); }
         
+        #sidebar { transition: transform 0.3s ease-in-out; z-index: 100; }
+        
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); position: fixed; height: 100vh; }
+            #sidebar.open { transform: translateX(0); }
+            #overlay.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+        }
+
         #menuContent { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
         #menuContent.open { max-height: 500px; }
         
@@ -21,28 +30,27 @@
             border-radius: 12px; font-size: 13px; font-weight: 700; color: #64748b;
             transition: all 0.2s; text-transform: uppercase; width: 100%;
         }
-        .menu-link:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
 
         .hero-bg {
             background-image: linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0.75)), 
-                              url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2000&auto=format&fit=crop');
+                              url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
         }
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
         .priority-high { border-left: 5px solid #ef4444 !important; background-color: #fef2f2 !important; }
+        #overlay { display: none; }
     </style>
 </head>
-<body class="h-screen flex">
+<body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <aside class="w-72 bg-white border-r border-slate-200 flex flex-col z-50">
+    <div id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div class="p-8 border-b border-slate-100 flex flex-col items-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[150px] mb-2 cursor-pointer" onclick="showView('home')">
-            <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase">Logística Global</span>
+            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home'); toggleSidebar();">
+            <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Logística Global</span>
         </div>
         
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto custom-scroll">
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
             <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                 <div class="flex items-center gap-3">
                     <i data-lucide="menu" class="w-5 h-5"></i>
@@ -52,38 +60,50 @@
             </button>
             
             <div id="menuContent" class="mt-2 space-y-1 bg-slate-50 rounded-2xl p-2 border border-slate-100">
-                <button onclick="showView('carga')" class="menu-link"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
-                <button onclick="showView('historico')" class="menu-link"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
-                <button onclick="showView('stats')" class="menu-link"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
+                <button onclick="showView('carga'); toggleSidebar();" class="menu-link"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
+                <button onclick="showView('historico'); toggleSidebar();" class="menu-link"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
+                <button onclick="showView('stats'); toggleSidebar();" class="menu-link"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
             </div>
         </nav>
 
         <div class="p-6 border-t border-slate-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-ocasa-cyan border border-slate-200 text-xs">GD</div>
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs">GD</div>
             <div class="flex flex-col">
-                <span class="text-xs font-bold text-slate-900">Gonzalo Dorrego</span>
-                <span class="text-[9px] text-slate-400 uppercase font-black">Admin Sistema</span>
+                <span class="text-xs font-bold text-slate-900 leading-tight">Gonzalo Dorrego</span>
+                <span class="text-[9px] text-slate-400 uppercase font-bold">Admin Sistema</span>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col">
-        <header class="h-20 bg-white border-b border-slate-100 px-10 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-4">
-                <span class="w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-lg font-black text-slate-800 uppercase tracking-tighter">Panel de Gestión</h2>
+    <main class="flex-1 flex flex-col min-w-0 bg-white">
+        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-4 md:px-10 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
+                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase truncate">Gestión de Reclamos</h2>
             </div>
-            <div id="reloj" class="text-sm font-black text-slate-700">00:00:00</div>
+            <div id="reloj" class="text-[10px] md:text-sm font-bold text-slate-700">00:00:00</div>
         </header>
 
-        <div id="contentFrame" class="flex-1 overflow-y-auto custom-scroll">
+        <div id="contentFrame" class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-10">
             </div>
     </main>
 
     <script>
+        // RECUERDA CAMBIAR ESTO POR TU URL REAL DE GOOGLE APPS SCRIPT
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
         let datosFull = [];
         let datosFiltrados = [];
+
+        function toggleSidebar() {
+            if (window.innerWidth >= 768) return;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
 
         function toggleMenu() {
             document.getElementById('menuContent').classList.toggle('open');
@@ -93,36 +113,35 @@
         async function showView(view) {
             const frame = document.getElementById('contentFrame');
             const title = document.getElementById('viewTitle');
-            frame.className = "flex-1 overflow-y-auto custom-scroll p-10";
+            frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
             
             if (view === 'home') {
                 frame.classList.add('hero-bg', 'flex', 'items-center', 'justify-center');
                 title.innerText = "Inicio";
-                // CAMBIO AQUÍ: GESTIÓN DE RECLAMOS
                 frame.innerHTML = `
-                    <div class="text-center space-y-4 max-w-xl bg-white/70 backdrop-blur-xl p-16 rounded-[4rem] shadow-2xl border border-white">
-                        <i data-lucide="truck" class="w-20 h-20 text-ocasa-cyan mx-auto mb-4"></i>
-                        <h1 class="text-4xl font-black text-slate-800 uppercase tracking-tighter">Gestión de Reclamos</h1>
-                        <p class="text-slate-600 font-medium italic">Seleccione una operación en el menú para comenzar.</p>
+                    <div class="text-center space-y-4 w-full max-w-sm md:max-w-xl bg-white/70 backdrop-blur-xl p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-2xl border border-white">
+                        <i data-lucide="truck" class="w-12 h-12 md:w-20 md:h-20 text-ocasa-cyan mx-auto mb-4"></i>
+                        <h1 class="text-xl md:text-4xl font-black text-slate-800 uppercase tracking-tighter">Gestión de Reclamos</h1>
+                        <p class="text-xs md:text-base text-slate-600 font-medium italic">Abra el menú lateral para operar.</p>
                     </div>`;
             } 
 
             else if (view === 'stats') {
-                title.innerText = "Estadísticas Operativas";
+                title.innerText = "Estadísticas";
                 frame.innerHTML = `
-                    <div class="max-w-5xl mx-auto space-y-8">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4 md:space-y-8 max-w-5xl mx-auto">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Registrados</span>
-                                <p class="text-4xl font-black text-slate-800 mt-2">${datosFull.length}</p>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Total Reclamos</span>
+                                <p class="text-2xl md:text-4xl font-black text-slate-800 mt-1">${datosFull.length}</p>
                             </div>
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">En Pendiente</span>
-                                <p class="text-4xl font-black text-orange-500 mt-2">${datosFull.filter(d => d.estado === 'Pendiente').length}</p>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">En Pendiente</span>
+                                <p class="text-2xl md:text-4xl font-black text-orange-500 mt-1">${datosFull.filter(d => d.estado === 'Pendiente').length}</p>
                             </div>
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">SLA Objetivo</span>
-                                <p class="text-4xl font-black text-emerald-500 mt-2">95%</p>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Objetivo SLA</span>
+                                <p class="text-2xl md:text-4xl font-black text-emerald-500 mt-1">95%</p>
                             </div>
                         </div>
                     </div>`;
@@ -131,38 +150,38 @@
             else if (view === 'carga') {
                 title.innerText = "Nueva Carga";
                 frame.innerHTML = `
-                    <div class="max-w-2xl mx-auto bg-white rounded-[3rem] shadow-xl border border-slate-100 p-12">
-                        <form id="formCarga" class="space-y-8">
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Tipo de Incidencia</label>
-                                    <select id="f-tipo" class="w-full p-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none font-bold">
+                    <div class="w-full max-w-2xl mx-auto bg-white rounded-3xl md:rounded-[3rem] shadow-xl border border-slate-100 p-6 md:p-12">
+                        <form id="formCarga" class="space-y-4 md:space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Tipo</label>
+                                    <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm">
                                         <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
                                     </select>
                                 </div>
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Prioridad</label>
-                                    <select id="f-prioridad" class="w-full p-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none font-bold">
-                                        <option value="Baja">Baja</option><option value="Media">Media</option><option value="Alta">Alta / Urgente</option>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Prioridad</label>
+                                    <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-sm">
+                                        <option value="Baja">Baja</option><option value="Media">Media</option><option value="Alta">Alta</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">N° Remito / Guía</label>
-                                <input type="text" id="f-remito" required class="w-full p-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none font-bold">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">N° Remito</label>
+                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Detalle del Suceso</label>
-                                <textarea id="f-desc" rows="4" required class="w-full p-5 rounded-2xl bg-slate-50 border border-slate-100 outline-none"></textarea>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Detalle del Reclamo</label>
+                                <textarea id="f-desc" rows="3" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100"></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all">Sincronizar Reclamo</button>
+                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-4 md:py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all">Sincronizar Datos</button>
                         </form>
                     </div>`;
                 
                 document.getElementById('formCarga').addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const btn = e.target.querySelector('button');
-                    btn.disabled = true; btn.innerText = "Sincronizando...";
+                    btn.disabled = true; btn.innerText = "Enviando...";
                     const payload = {
                         fecha: new Date().toLocaleString(),
                         tipo: document.getElementById('f-tipo').value,
@@ -172,28 +191,23 @@
                         estado: "Pendiente", usuario: "Gonzalo Dorrego"
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Sincronizado con éxito!"); init();
+                    alert("¡Registrado!"); init();
                 });
             }
 
             else if (view === 'historico') {
-                title.innerText = "Histórico Operativo";
+                title.innerText = "Histórico";
                 datosFiltrados = [...datosFull];
                 frame.innerHTML = `
-                    <div class="max-w-6xl mx-auto space-y-6">
-                        <div class="flex items-center justify-between bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
-                            <div class="relative w-96">
-                                <i data-lucide="search" class="absolute left-4 top-3 text-slate-400 w-4 h-4"></i>
-                                <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Filtrar por remito..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-sm outline-none">
-                            </div>
-                            <button onclick="exportarCSV()" class="flex items-center gap-2 bg-slate-800 text-white px-6 py-2.5 rounded-full font-black text-[10px] uppercase hover:bg-black transition-all">
-                                <i data-lucide="download" class="w-4 h-4"></i> Exportar CSV
-                            </button>
+                    <div class="space-y-4 max-w-6xl mx-auto">
+                        <div class="flex flex-col md:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito..." class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none w-full md:w-64">
+                            <button onclick="exportarCSV()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase">Descargar CSV</button>
                         </div>
-                        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                                    <tr><th class="p-6">Fecha</th><th class="p-6">Remito</th><th class="p-6">Tipo</th><th class="p-6">Prioridad</th><th class="p-6">Estado</th></tr>
+                        <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+                            <table class="w-full text-left min-w-[600px]">
+                                <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                                    <tr><th class="p-4">Remito</th><th class="p-4">Tipo</th><th class="p-4">Prioridad</th><th class="p-4">Estado</th></tr>
                                 </thead>
                                 <tbody id="tablaBody" class="text-sm"></tbody>
                             </table>
@@ -207,18 +221,14 @@
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
-            tbody.innerHTML = '';
-            data.forEach(item => {
-                const esAlta = item.prioridad === 'Alta';
-                tbody.innerHTML += `
-                    <tr class="border-t border-slate-50 hover:bg-slate-50/50 ${esAlta ? 'priority-high' : ''}">
-                        <td class="p-6 text-slate-400 font-medium">${item.fecha}</td>
-                        <td class="p-6 font-black">${item.remito}</td>
-                        <td class="p-6 font-bold text-slate-600">${item.tipo}</td>
-                        <td class="p-6"><span class="text-[10px] font-black ${esAlta ? 'text-red-600' : 'text-slate-400'} uppercase">${item.prioridad || 'Media'}</span></td>
-                        <td class="p-6"><span class="px-3 py-1 bg-cyan-50 text-ocasa-cyan rounded-full text-[10px] font-black uppercase">${item.estado}</span></td>
-                    </tr>`;
-            });
+            tbody.innerHTML = data.map(item => `
+                <tr class="border-t border-slate-50 ${item.prioridad === 'Alta' ? 'priority-high' : ''}">
+                    <td class="p-4 font-bold text-slate-800">${item.remito}</td>
+                    <td class="p-4 text-slate-600">${item.tipo}</td>
+                    <td class="p-4 text-xs font-bold ${item.prioridad === 'Alta' ? 'text-red-500' : 'text-slate-400'}">${item.prioridad}</td>
+                    <td class="p-4"><span class="px-2 py-1 bg-cyan-50 text-ocasa-cyan rounded-full text-[9px] font-black uppercase">${item.estado}</span></td>
+                </tr>
+            `).join('');
         }
 
         function filtrarTabla() {
@@ -233,7 +243,7 @@
             const blob = new Blob([csv], { type: 'text/csv' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "Reporte_Reclamos.csv";
+            link.download = "Reporte_OCASA.csv";
             link.click();
         }
 
@@ -242,10 +252,11 @@
             try {
                 const res = await fetch(WEB_APP_URL);
                 datosFull = await res.json();
-            } catch (e) { console.error("Error de conexión"); }
+            } catch (e) { console.error("Error"); }
             showView('home');
         }
         init();
     </script>
 </body>
 </html>
+
