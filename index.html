@@ -3,35 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCASA - Gestión de Reclamos</title>
+    <title>OCASA - Gestión Operativa de Reclamos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --ocasa-cyan: #0097A7; }
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
-        .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         .text-ocasa-cyan { color: var(--ocasa-cyan); }
+        .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         
         /* Estilos de Scroll */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: var(--ocasa-cyan); border-radius: 10px; }
         
-        .btn-primary {
-            background-color: var(--ocasa-cyan);
-            color: white;
-            transition: all 0.2s ease;
-        }
-        .btn-primary:hover {
-            background-color: #007A87;
-            transform: translateY(-1px);
-        }
+        /* Badges de Estado */
+        .badge-pendiente { background-color: #FEF3C7; color: #92400E; }
+        .badge-proceso { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-finalizado { background-color: #D1FAE5; color: #065F46; }
+        
+        /* Animación de Carga */
+        .loader { border-top-color: var(--ocasa-cyan); animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
 
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col z-50">
+    <aside class="w-68 bg-white border-r border-slate-200 flex flex-col z-50">
         <div class="p-8 border-b border-slate-100 flex flex-col items-center gap-4">
             <div class="h-16 flex items-center justify-center">
                 <img src="logo_ocasa.png" alt="OCASA" class="max-w-[160px] h-auto object-contain">
@@ -39,14 +38,28 @@
             <span class="text-[10px] text-slate-400 font-black tracking-[0.2em] uppercase">Logística Integral</span>
         </div>
         
-        <nav class="flex-1 px-4 py-8 space-y-3">
-            <button onclick="location.reload()" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl btn-primary font-bold shadow-lg shadow-cyan-500/10 active:scale-95">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i> NUEVO RECLAMO
-            </button>
+        <nav class="flex-1 px-4 py-8 space-y-3 custom-scroll overflow-y-auto">
             
-            <button id="btnHistorico" class="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-slate-500 hover:bg-slate-50 hover:text-ocasa-cyan transition-all group">
-                <i data-lucide="history" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> 
-                <span class="font-bold text-sm uppercase tracking-tight">Histórico de Reclamos</span>
+            <div class="relative">
+                <button id="btnNuevoDropdown" class="w-full flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-ocasa-cyan text-white font-bold shadow-lg shadow-cyan-500/10 active:scale-95 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        <span class="text-sm uppercase tracking-tight">Nuevo</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="iconNuevoChevron"></i>
+                </button>
+                
+                <div id="dropdownNuevoContent" class="hidden absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-10">
+                    <button id="openFormBtn" class="w-full flex items-center gap-3 p-3 rounded-lg text-slate-700 hover:bg-cyan-50 hover:text-ocasa-cyan font-bold transition-all text-sm uppercase">
+                        <i data-lucide="file-plus-2" class="w-4 h-4"></i>
+                        Registrar Reclamo
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl bg-slate-100 text-ocasa-cyan font-bold shadow-sm active:scale-95 transition-all">
+                <i data-lucide="layout-list" class="w-5 h-5"></i> 
+                <span class="text-sm uppercase tracking-tight">Ver Histórico</span>
             </button>
         </nav>
 
@@ -60,135 +73,201 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-20 bg-white border-b border-slate-100 px-10 flex items-center justify-between shadow-sm">
+        
+        <header class="h-20 bg-white border-b border-slate-100 px-10 flex items-center justify-between shadow-sm z-40">
             <h2 class="text-lg font-black text-slate-800 uppercase tracking-tighter flex items-center gap-3">
                 <span class="w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                Gestión de Reclamos OCASA
+                Histórico Operativo
             </h2>
+
+            <div class="flex items-center gap-2">
+                <div class="relative w-80">
+                    <i data-lucide="search" class="absolute left-4 top-3 text-slate-400 w-4 h-4"></i>
+                    <input type="text" id="busquedaInput" placeholder="Buscar por ID, Categoría o Detalle..." class="w-full bg-slate-100 border border-slate-200 rounded-full py-2.5 pl-11 pr-5 text-sm outline-none focus:ring-2 focus:ring-cyan-100 focus:bg-white transition-all">
+                </div>
+                <button id="btnBuscar" class="bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-black transition-all active:scale-95">
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    Filtrar
+                </button>
+            </div>
+            
             <div class="text-right">
                 <span id="clock" class="text-sm font-bold text-slate-700 block">00:00:00</span>
-                <span class="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Conexión en Línea</span>
+                <span class="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Sincronizado</span>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-12 bg-slate-50">
-            <div class="max-w-4xl mx-auto">
-                <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-200 overflow-hidden">
-                    <div class="bg-ocasa-cyan h-2 w-full"></div>
-                    <form id="formReclamo" class="p-10 space-y-8">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Tipo de Reclamo</label>
-                                <select id="tipo" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 transition-all">
-                                    <option value="Caja rota">📦 Caja rota / Dañada</option>
-                                    <option value="Producto equivocado">🔄 Producto equivocado</option>
-                                    <option value="Color equivocado">🎨 Color equivocado</option>
-                                    <option value="No recibi mi producto">🚫 No recibí mi producto</option>
-                                </select>
-                            </div>
-                            <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">ID de Reclamo (N° Remito)</label>
-                                <input type="text" id="remito" required placeholder="Ej: 0064-00076543" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 uppercase">
-                            </div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Descripción Detallada</label>
-                            <textarea id="descripcion" rows="4" required placeholder="Ingrese el detalle del reclamo aquí..." class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-medium text-slate-700 resize-none"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Estado Operativo</label>
-                                <select id="estado" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none font-bold text-slate-700">
-                                    <option>Pendiente</option>
-                                    <option>En Proceso</option>
-                                    <option>Finalizado</option>
-                                </select>
-                            </div>
-                            <div class="space-y-3">
-                                <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Prioridad de Atención</label>
-                                <select id="prioridad" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none font-bold text-slate-700">
-                                    <option value="Baja">Baja</option>
-                                    <option value="Media" selected>Media</option>
-                                    <option value="Alta">Alta / Crítica</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-end pt-8">
-                            <button type="submit" id="btnEnviar" class="btn-primary px-12 py-5 rounded-2xl font-black text-sm flex items-center gap-3 shadow-lg shadow-cyan-500/20 active:scale-95">
-                                <i data-lucide="send" class="w-5 h-5"></i> REGISTRAR RECLAMO
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div id="modalHistorico" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-            <div class="bg-white w-full max-w-6xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
-                <div class="p-8 border-b border-slate-100 flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-ocasa-cyan/10 p-2 rounded-xl text-ocasa-cyan">
-                            <i data-lucide="history" class="w-6 h-6"></i>
-                        </div>
-                        <h3 class="font-black text-xl uppercase tracking-tighter text-slate-800">Histórico de Reclamos</h3>
-                    </div>
-                    <button id="cerrarModal" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
-                        <i data-lucide="x" class="w-8 h-8"></i>
-                    </button>
-                </div>
+        <div class="flex-1 overflow-y-auto p-12 bg-slate-50 custom-scroll">
+            <div class="max-w-[1400px] mx-auto space-y-6">
                 
-                <div class="flex-1 overflow-auto p-8 custom-scroll bg-slate-50/50">
-                    <table class="w-full text-left border-separate border-spacing-y-3">
-                        <thead>
-                            <tr class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                                <th class="px-6 pb-2">Fecha</th>
-                                <th class="px-6 pb-2">ID Reclamo</th>
-                                <th class="px-6 pb-2">Categoría</th>
-                                <th class="px-6 pb-2">Descripción</th>
-                                <th class="px-6 pb-2">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaCuerpo" class="text-sm">
-                            </tbody>
-                    </table>
+                <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-12 w-12"></div>
+                    <span class="font-bold text-sm uppercase tracking-widest">Obteniendo datos...</span>
+                </div>
+
+                <div id="historicoLista" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+
+                <div id="noResults" class="hidden text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-sm">
+                    No se encontraron reclamos con ese criterio.
                 </div>
             </div>
         </div>
     </main>
 
+    <div id="formModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-slate-100">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="flex items-center gap-4">
+                    <div class="bg-ocasa-cyan/10 p-2.5 rounded-xl text-ocasa-cyan">
+                        <i data-lucide="file-plus-2" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-black text-xl uppercase tracking-tighter text-slate-800">Registrar Nuevo Reclamo</h3>
+                </div>
+                <button id="closeFormBtn" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                    <i data-lucide="x" class="w-8 h-8"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-10 custom-scroll">
+                <form id="formReclamo" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-3">
+                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Tipo de Reclamo</label>
+                            <select id="tipo" required class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 transition-all">
+                                <option value="" disabled selected>Seleccione una categoría</option>
+                                <option value="Caja rota">📦 Caja rota / Dañada</option>
+                                <option value="Producto equivocado">🔄 Producto equivocado</option>
+                                <option value="Color equivocado">🎨 Color equivocado</option>
+                                <option value="No recibi mi producto">🚫 No recibí mi producto</option>
+                            </select>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">ID de Reclamo (N° Remito)</label>
+                            <input type="text" id="remito" required placeholder="Ej: REC-123456" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-bold text-slate-700 uppercase transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Descripción Detallada</label>
+                        <textarea id="descripcion" rows="4" required placeholder="Ingrese el detalle completo del reclamo aquí..." class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-cyan-100 outline-none font-medium text-slate-700 resize-none transition-all"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-8">
+                        <div class="space-y-3">
+                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Estado Operativo</label>
+                            <select id="estado" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-100 outline-none font-bold text-slate-700">
+                                <option selected>Pendiente</option>
+                                <option>En Proceso</option>
+                                <option>Finalizado</option>
+                            </select>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Prioridad de Atención</label>
+                            <select id="prioridad" class="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-100 outline-none font-bold text-slate-700">
+                                <option value="Baja">Baja</option>
+                                <option value="Media" selected>Media</option>
+                                <option value="Alta">Alta / Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end pt-8">
+                        <button type="submit" id="btnEnviar" class="bg-ocasa-cyan text-white px-12 py-5 rounded-2xl font-black text-sm flex items-center gap-3 shadow-lg shadow-cyan-500/10 active:scale-95 transition-all">
+                            <i data-lucide="send" class="w-5 h-5"></i> REGISTRAR RECLAMO
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="msgExito" class="hidden fixed bottom-10 right-10 animate-bounce z-50">
+        <div class="bg-emerald-600 text-white px-8 py-5 rounded-2xl flex items-center gap-4 font-black shadow-2xl border-b-4 border-black/10">
+            <i data-lucide="check-circle" class="w-7 h-7"></i> RECLAMO SINCRONIZADO
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
         
-        // Reloj tiempo real
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        // URL de tu Google Apps Script
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
+        let datosHistoricos = [];
 
-        // Envío de formulario
+        // 1. GESTIÓN DEL MENÚ DESPLEGABLE (NUEVO)
+        const btnNuevo = document.getElementById('btnNuevoDropdown');
+        const dropdownContent = document.getElementById('dropdownNuevoContent');
+        const iconChevron = document.getElementById('iconNuevoChevron');
+
+        btnNuevo.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el clic cierre el dropdown inmediatamente
+            dropdownContent.classList.toggle('hidden');
+            iconChevron.classList.toggle('rotate-180');
+        });
+
+        // Cerrar el dropdown si se hace clic fuera
+        document.addEventListener('click', () => {
+            dropdownContent.classList.add('hidden');
+            iconChevron.classList.remove('rotate-180');
+        });
+
+        // 2. GESTIÓN DEL MODAL DEL FORMULARIO
+        const openFormBtn = document.getElementById('openFormBtn');
+        const closeFormBtn = document.getElementById('closeFormBtn');
+        const formModal = document.getElementById('formModal');
+
+        openFormBtn.addEventListener('click', () => {
+            formModal.classList.remove('hidden');
+            dropdownContent.classList.add('hidden'); // Cerrar dropdown al abrir modal
+            iconChevron.classList.remove('rotate-180');
+        });
+
+        closeFormBtn.addEventListener('click', () => {
+            formModal.classList.add('hidden');
+        });
+
+        // 3. RELOJ TIEMPO REAL
+        setInterval(() => { 
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString(); 
+        }, 1000);
+
+        // 4. ENVÍO DEL FORMULARIO (NUEVO RECLAMO)
         document.getElementById('formReclamo').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnEnviar');
+            
             const payload = {
                 fecha: new Date().toLocaleString(),
                 tipo: document.getElementById('tipo').value,
                 remito: document.getElementById('remito').value.trim().toUpperCase(),
                 descripcion: document.getElementById('descripcion').value,
                 prioridad: document.getElementById('prioridad').value,
+                resolucion: "", 
                 estado: document.getElementById('estado').value,
                 usuario: "Gonzalo Dorrego"
             };
 
             btn.disabled = true;
-            btn.innerHTML = `<span class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> GUARDANDO...`;
+            btn.innerHTML = `<span class="animate-spin loader rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span> GUARDANDO...`;
 
             try {
+                // Envío POST usando no-cors (espera confirmación visual, no respuesta JSON)
                 await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                alert("¡Reclamo registrado correctamente!");
+                
+                // Éxito visual
+                document.getElementById('msgExito').classList.remove('hidden');
                 document.getElementById('formReclamo').reset();
+                formModal.classList.add('hidden'); // Cerrar modal
+
+                setTimeout(() => {
+                    document.getElementById('msgExito').classList.add('hidden');
+                    cargarHistorico(); // Recargar la lista principal
+                }, 3500);
+
             } catch (error) {
-                alert("Error al conectar con la planilla.");
+                console.error("Error envío:", error);
+                alert('Error al conectar con la planilla.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i> REGISTRAR RECLAMO`;
@@ -196,54 +275,33 @@
             }
         });
 
-        // Cargar Histórico corregido
-        async function cargarPanel() {
-            const tabla = document.getElementById('tablaCuerpo');
-            tabla.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-400 animate-pulse font-bold uppercase tracking-widest text-xs">Sincronizando con Google Sheets...</td></tr>';
-            
+        // 5. CARGAR Y VISUALIZAR EL HISTÓRICO (LISTA EN INICIO)
+        async function cargarHistorico() {
+            const lista = document.getElementById('historicoLista');
+            const loading = document.getElementById('loadingIndicator');
+            const noResults = document.getElementById('noResults');
+
+            lista.innerHTML = '';
+            loading.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
             try {
                 const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                renderizarTabla(data);
+                datosHistoricos = await response.json();
+                renderizarLista(datosHistoricos);
             } catch (e) {
-                tabla.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-red-400 font-bold uppercase text-xs">Error de conexión con la base de datos.</td></tr>';
+                console.error("Error historial:", e);
+                lista.innerHTML = '<div class="col-span-3 text-center py-10 text-red-500 font-bold uppercase text-xs">Error de sincronización con la base de datos.</div>';
+            } finally {
+                loading.classList.add('hidden');
             }
         }
 
-        function renderizarTabla(data) {
-            const tabla = document.getElementById('tablaCuerpo');
-            tabla.innerHTML = '';
-            
-            data.forEach(item => {
-                // Mapeo correcto de columnas según tu captura:
-                // A: Fecha, B: Tipo, C: Remito, D: Descripcion, G: Estado
-                const row = document.createElement('tr');
-                row.className = "bg-white shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden";
-                
-                row.innerHTML = `
-                    <td class="py-5 px-6 font-bold text-slate-400 text-[11px]">${item.fecha || '-'}</td>
-                    <td class="py-5 px-6 font-black text-slate-800 tracking-tight">${item.remito || '-'}</td>
-                    <td class="py-5 px-6"><span class="font-bold text-slate-600">${item.tipo || '-'}</span></td>
-                    <td class="py-5 px-6 text-slate-500 italic text-[12px] max-w-xs truncate">${item.descripcion || '-'}</td>
-                    <td class="py-5 px-6">
-                        <span class="px-3 py-1 rounded-full bg-cyan-50 text-ocasa-cyan text-[10px] font-black uppercase">
-                            ${item.estado || 'PENDIENTE'}
-                        </span>
-                    </td>
-                `;
-                tabla.appendChild(row);
-            });
-        }
+        // Renderizar datos en formato Tarjeta (Lista visual)
+        function renderizarLista(data) {
+            const lista = document.getElementById('historicoLista');
+            const noResults = document.getElementById('noResults');
+            lista.innerHTML = '';
 
-        // Eventos de Modal
-        document.getElementById('btnHistorico').addEventListener('click', () => {
-            document.getElementById('modalHistorico').classList.remove('hidden');
-            cargarPanel();
-        });
-        document.getElementById('cerrarModal').addEventListener('click', () => {
-            document.getElementById('modalHistorico').classList.add('hidden');
-        });
-    </script>
-</body>
-</html>
-
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
