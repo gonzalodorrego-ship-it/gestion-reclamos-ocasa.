@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OCASA - Sistema Integral de Reclamos</title>
+    <title>OCASA - Gestión de Reclamos</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -50,17 +50,17 @@
 
     <div id="overlay" onclick="toggleSidebar()"></div>
 
-    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 shadow-xl md:shadow-none">
+    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div class="p-8 border-b border-slate-100 flex flex-col items-center">
             <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home'); toggleSidebar();">
-            <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase italic">Logística Global</span>
+            <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Logística Global</span>
         </div>
         
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
             <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
-                    <span class="text-sm tracking-tight uppercase">Operaciones</span>
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                    <span class="text-sm tracking-tight uppercase">Menú Principal</span>
                 </div>
                 <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="menuChevron"></i>
             </button>
@@ -78,11 +78,11 @@
             </div>
         </nav>
 
-        <div class="p-6 border-t border-slate-100 flex items-center gap-3 bg-slate-50/50">
-            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 shadow-sm text-xs">GD</div>
+        <div class="p-6 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs">GD</div>
             <div class="flex flex-col">
                 <span class="text-xs font-bold text-slate-900 leading-tight">Gonzalo Dorrego</span>
-                <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Administrador</span>
+                <span class="text-[9px] text-slate-400 uppercase font-bold">Admin Sistema</span>
             </div>
         </div>
     </aside>
@@ -94,7 +94,7 @@
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase tracking-tighter truncate">Gestión de Reclamos</h2>
+                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase truncate">Panel de Gestión</h2>
             </div>
             
             <div class="relative">
@@ -132,20 +132,17 @@
                 return item.estado === 'Pendiente' && diff >= 24;
             });
             const badge = document.getElementById('badgeNotif');
-            const btn = document.getElementById('btnNotif');
             if (reclamosAtrasados.length > 0) {
                 badge.innerText = reclamosAtrasados.length;
                 badge.classList.remove('hidden');
-                btn.classList.add('has-alerts');
             } else {
                 badge.classList.add('hidden');
-                btn.classList.remove('has-alerts');
             }
         }
 
         function mostrarAlertas() {
             if (reclamosAtrasados.length === 0) {
-                alert("No hay reclamos atrasados (+24h).");
+                alert("Sin reclamos críticos.");
                 return;
             }
             showView('alertas_list');
@@ -168,38 +165,26 @@
             } 
 
             else if (view === 'stats') {
-                title.innerText = "Panel de Estadísticas";
+                title.innerText = "Estadísticas";
                 const total = datosFull.length;
                 const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
                 const finalizados = total - pendientes;
-                const porcFinalizado = total > 0 ? Math.round((finalizados / total) * 100) : 0;
-
+                const porc = total > 0 ? Math.round((finalizados/total)*100) : 0;
+                
                 frame.innerHTML = `
                     <div class="max-w-4xl mx-auto space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                                <span class="text-[10px] font-black text-slate-400 uppercase">Total Reclamos</span>
+                            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Total</p>
                                 <p class="text-4xl font-black text-slate-800">${total}</p>
                             </div>
-                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                                <span class="text-[10px] font-black text-orange-400 uppercase">Pendientes</span>
-                                <p class="text-4xl font-black text-orange-500">${pendientes}</p>
+                            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-orange-500">
+                                <p class="text-[10px] font-bold uppercase">Pendientes</p>
+                                <p class="text-4xl font-black">${pendientes}</p>
                             </div>
-                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                                <span class="text-[10px] font-black text-emerald-400 uppercase">Finalizados</span>
-                                <p class="text-4xl font-black text-emerald-500">${finalizados}</p>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <div class="flex justify-between items-end mb-4">
-                                <div>
-                                    <h3 class="font-black text-slate-800 uppercase text-sm">Eficiencia de Resolución</h3>
-                                    <p class="text-xs text-slate-400">Porcentaje de casos cerrados sobre el total</p>
-                                </div>
-                                <span class="text-3xl font-black text-ocasa-cyan">${porcFinalizado}%</span>
-                            </div>
-                            <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden">
-                                <div class="bg-ocasa-cyan h-full transition-all duration-1000" style="width: ${porcFinalizado}%"></div>
+                            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-emerald-500">
+                                <p class="text-[10px] font-bold uppercase">SLA Objetivo</p>
+                                <p class="text-4xl font-black">${porc}%</p>
                             </div>
                         </div>
                     </div>`;
@@ -208,38 +193,38 @@
             else if (view === 'carga') {
                 title.innerText = "Nueva Carga";
                 frame.innerHTML = `
-                    <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-slate-100">
-                        <form id="formCarga" class="space-y-6">
+                    <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+                        <form id="formCarga" class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Tipo de Incidencia</label>
-                                    <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none focus:ring-2 focus:ring-cyan-100">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Tipo</label>
+                                    <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
                                         <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
                                     </select>
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Prioridad</label>
-                                    <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
-                                        <option value="Baja">Baja</option><option value="Media">Media</option><option value="Alta">Alta</option>
+                                    <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
+                                        <option value="Baja">Baja</option><option value="Alta">Alta</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">N° Remito / Guía</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">N° Remito</label>
                                 <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold outline-none">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Descripción del Suceso</label>
-                                <textarea id="f-desc" rows="3" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium outline-none"></textarea>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Detalle</label>
+                                <textarea id="f-desc" rows="3" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100"></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-cyan-700 active:scale-95 transition-all">Sincronizar Reclamo</button>
+                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all">Sincronizar</button>
                         </form>
                     </div>`;
                 
                 document.getElementById('formCarga').addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const btn = e.target.querySelector('button');
-                    btn.disabled = true; btn.innerText = "Procesando...";
+                    btn.disabled = true; btn.innerText = "Sincronizando...";
                     const payload = {
                         fecha: new Date().toLocaleString(),
                         tipo: document.getElementById('f-tipo').value,
@@ -249,54 +234,29 @@
                         estado: "Pendiente", usuario: "Gonzalo Dorrego"
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Registrado exitosamente!"); 
+                    alert("¡Sincronizado!"); 
                     init();
                 });
             }
 
             else if (view === 'historico') {
-                title.innerText = "Historial General";
+                title.innerText = "Historial";
                 frame.innerHTML = `
                     <div class="space-y-4 max-w-6xl mx-auto">
-                        <div class="flex flex-col md:flex-row gap-4 justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                            <div class="relative flex-1 max-w-md">
-                                <i data-lucide="search" class="absolute left-3 top-3 text-slate-400 w-4 h-4"></i>
-                                <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito..." class="pl-10 p-3 bg-slate-50 w-full border border-slate-100 rounded-xl text-sm outline-none">
-                            </div>
-                            <button onclick="exportarCSV()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase hover:bg-black transition-all">Exportar Reporte (.csv)</button>
+                        <div class="flex flex-col md:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-slate-100">
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito..." class="p-3 bg-slate-50 w-full md:w-64 border border-slate-100 rounded-xl text-sm outline-none">
+                            <button onclick="exportarCSV()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase">Exportar CSV</button>
                         </div>
                         <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm italic">
-                            <table class="w-full text-left min-w-[700px]">
+                            <table class="w-full text-left min-w-[600px]">
                                 <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Fecha</th><th class="p-5">Estado</th></tr>
+                                    <tr><th class="p-4">Remito</th><th class="p-4">Tipo</th><th class="p-4">Fecha</th><th class="p-4">Estado</th></tr>
                                 </thead>
                                 <tbody id="tablaBody" class="text-sm"></tbody>
                             </table>
                         </div>
                     </div>`;
                 renderizarTabla(datosFull);
-            }
-
-            else if (view === 'alertas_list') {
-                title.innerText = "Casos Críticos (>24h)";
-                frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto space-y-4">
-                        <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mb-6">
-                            <p class="text-red-600 text-[10px] font-black uppercase">Atención: Gestión de SLA vencido</p>
-                        </div>
-                        ${reclamosAtrasados.map(r => `
-                            <div class="bg-white p-6 rounded-2xl border-l-4 border-l-red-500 shadow-sm flex justify-between items-center">
-                                <div>
-                                    <p class="text-[10px] font-black text-slate-400 uppercase">Remito: ${r.remito}</p>
-                                    <p class="text-lg font-black text-slate-800 tracking-tight">${r.tipo}</p>
-                                    <p class="text-xs text-red-500 font-bold italic underline">Vencido desde el: ${r.fecha}</p>
-                                </div>
-                                <button onclick="showView('historico')" class="bg-slate-100 text-slate-500 p-3 rounded-full hover:bg-slate-200 transition-colors">
-                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>`;
             }
             lucide.createIcons();
         }
@@ -305,11 +265,11 @@
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
             tbody.innerHTML = data.map(item => `
-                <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors ${item.prioridad === 'Alta' ? 'priority-high' : ''}">
-                    <td class="p-5 font-black text-slate-800 tracking-tighter">${item.remito}</td>
-                    <td class="p-5 font-bold text-slate-600">${item.tipo}</td>
-                    <td class="p-5 text-[11px] text-slate-400 font-medium uppercase tracking-tighter">${item.fecha}</td>
-                    <td class="p-5"><span class="px-3 py-1 bg-cyan-50 text-ocasa-cyan rounded-full text-[9px] font-black uppercase tracking-widest border border-cyan-100">${item.estado}</span></td>
+                <tr class="border-t border-slate-50 ${item.prioridad === 'Alta' ? 'priority-high' : ''}">
+                    <td class="p-4 font-black text-slate-800">${item.remito}</td>
+                    <td class="p-4 text-slate-600 font-bold">${item.tipo}</td>
+                    <td class="p-4 text-[11px] text-slate-400 uppercase">${item.fecha}</td>
+                    <td class="p-4"><span class="px-3 py-1 bg-cyan-50 text-ocasa-cyan rounded-full text-[9px] font-black uppercase tracking-widest">${item.estado}</span></td>
                 </tr>
             `).join('');
         }
@@ -320,25 +280,16 @@
             renderizarTabla(filtrados);
         }
 
-        function exportarCSV() {
-            const headers = ["Fecha", "Remito", "Tipo", "Prioridad", "Estado"];
-            const csv = [headers.join(","), ...datosFull.map(i => [`"${i.fecha}"`,`"${i.remito}"`,`"${i.tipo}"`,`"${i.prioridad}"`,`"${i.estado}"`].join(","))].join("\n");
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "Reporte_Reclamos_OCASA.csv";
-            link.click();
-        }
-
         async function init() {
             try {
                 const res = await fetch(WEB_APP_URL);
                 datosFull = await res.json();
                 procesarAlertas();
-            } catch (e) { console.error("Error de sincronización"); }
+            } catch (e) { console.error("Error"); }
             showView('home');
         }
         init();
     </script>
 </body>
 </html>
+
