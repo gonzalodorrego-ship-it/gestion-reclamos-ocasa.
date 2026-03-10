@@ -11,7 +11,6 @@
         :root { --ocasa-cyan: #0097A7; }
         body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; color: #1e293b; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
-        .text-ocasa-cyan { color: var(--ocasa-cyan); }
         
         /* Animación Campana */
         @keyframes bell-swing {
@@ -25,26 +24,25 @@
         }
         .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
 
-        /* Panel de Notificaciones Dropdown */
+        /* Dropdown Notificaciones */
         #notifPanel { 
             display: none; 
             position: absolute; 
-            top: 70px; 
+            top: 65px; 
             right: 0; 
             width: 320px; 
             max-height: 480px; 
             background: white; 
             border-radius: 24px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             z-index: 200;
             border: 1px solid #f1f5f9;
-            overflow: hidden;
         }
-        #notifPanel.show { display: block; animation: slideIn 0.25s ease-out; }
+        #notifPanel.show { display: block; animation: slideIn 0.2s ease-out; }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         #sidebar { transition: transform 0.3s ease; z-index: 100; }
@@ -55,12 +53,12 @@
         }
 
         #menuContent { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        #menuContent.open { max-height: 600px; }
+        #menuContent.open { max-height: 500px; }
         
         .menu-link {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            border-radius: 12px; font-size: 13px; font-weight: 700; color: #64748b;
-            transition: all 0.2s; text-transform: uppercase; width: 100%;
+            display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+            border-radius: 16px; font-size: 13px; font-weight: 700; color: #64748b;
+            transition: all 0.2s; text-transform: uppercase;
         }
         .menu-link:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
 
@@ -69,7 +67,6 @@
                         url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
         }
-        .priority-high { border-left: 5px solid #ef4444 !important; background-color: #fef2f2 !important; }
         #overlay { display: none; }
     </style>
 </head>
@@ -83,7 +80,7 @@
             <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase italic">Logística Global</span>
         </div>
         
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-2">
             <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                 <div class="flex items-center gap-3">
                     <i data-lucide="menu" class="w-5 h-5"></i>
@@ -92,10 +89,10 @@
                 <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="menuChevron"></i>
             </button>
             
-            <div id="menuContent" class="mt-2 space-y-1 bg-slate-50 rounded-2xl p-2 border border-slate-100">
-                <button onclick="showView('carga'); toggleSidebar();" class="menu-link"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
-                <button onclick="showView('historico'); toggleSidebar();" class="menu-link"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
-                <button onclick="showView('stats'); toggleSidebar();" class="menu-link"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
+            <div id="menuContent" class="mt-2 space-y-1 bg-slate-50 rounded-3xl p-2 border border-slate-100">
+                <button onclick="showView('carga'); toggleSidebar();" class="menu-link w-full"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
+                <button onclick="showView('historico'); toggleSidebar();" class="menu-link w-full"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
+                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
             </div>
         </nav>
 
@@ -111,28 +108,23 @@
     <main class="flex-1 flex flex-col min-w-0 bg-white relative">
         <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-6 md:px-10 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600"><i data-lucide="menu"></i></button>
                 <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase tracking-tighter italic">Panel de Gestión</h2>
+                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase italic tracking-tighter">Panel de Gestión</h2>
             </div>
             
             <div class="relative">
                 <button onclick="toggleNotificaciones()" id="btnBell" class="p-2 rounded-full hover:bg-slate-100 transition-all relative">
-                    <div id="bellWrapper" class="flex items-center justify-center">
-                        <i data-lucide="bell" class="w-6 h-6 text-slate-400"></i>
-                    </div>
+                    <div id="bellWrapper"><i data-lucide="bell" class="w-6 h-6 text-slate-400"></i></div>
                     <span id="badgeNotif" class="hidden absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
                 </button>
 
                 <div id="notifPanel">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase text-slate-400 italic">Notificaciones SLA</span>
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-[24px]">
+                        <span class="text-[10px] font-black uppercase text-slate-400 italic">Alertas SLA (+24hs)</span>
                         <span id="notifCount" class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
                     </div>
-                    <div id="notifList" class="overflow-y-auto max-h-[380px] p-2 space-y-2 bg-white">
-                        </div>
+                    <div id="notifList" class="overflow-y-auto max-h-[350px] p-2 space-y-2"></div>
                 </div>
             </div>
         </header>
@@ -160,7 +152,7 @@
             document.getElementById('notifPanel').classList.toggle('show');
         }
 
-        // Cierre al hacer click afuera
+        // Click fuera para cerrar notificaciones
         window.addEventListener('click', (e) => {
             if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
                 document.getElementById('notifPanel').classList.remove('show');
@@ -185,31 +177,28 @@
                 badge.classList.remove('hidden');
                 wrapper.classList.add('animate-bell');
                 count.innerText = reclamosAtrasados.length;
-                
                 list.innerHTML = reclamosAtrasados.map(r => `
-                    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm border-l-4 border-l-red-500 hover:bg-slate-50 transition-colors">
-                        <p class="text-[11px] font-black text-slate-800 uppercase italic leading-tight">${r.tipo}</p>
+                    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm border-l-4 border-l-red-500">
+                        <p class="text-[11px] font-black text-slate-800 uppercase italic">${r.tipo}</p>
                         <p class="text-[10px] text-slate-400 font-bold mt-1">Guía: ${r.remito}</p>
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-[9px] text-red-500 font-black uppercase tracking-tighter">Vencido hace +24hs</span>
-                            <button onclick="irAReclamo('${r.remito}')" class="bg-slate-900 text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase tracking-widest">Ver</button>
+                            <span class="text-[9px] text-red-500 font-bold uppercase italic">Vencido</span>
+                            <button onclick="verReclamo('${r.remito}')" class="bg-slate-900 text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase">Ver</button>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             } else {
                 badge.classList.add('hidden');
                 wrapper.classList.remove('animate-bell');
-                list.innerHTML = `<p class="p-8 text-center text-slate-400 text-xs font-bold italic">Sin alertas pendientes</p>`;
-                count.innerText = "0";
+                list.innerHTML = `<p class="p-8 text-center text-slate-400 text-xs font-bold italic">Todo al día</p>`;
             }
         }
 
-        function irAReclamo(remito) {
+        function verReclamo(remito) {
             document.getElementById('notifPanel').classList.remove('show');
             showView('historico', remito);
         }
 
-        async function showView(view, filterRemito = null) {
+        async function showView(view, filter = null) {
             const frame = document.getElementById('contentFrame');
             const title = document.getElementById('viewTitle');
             frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
@@ -220,36 +209,21 @@
                 frame.innerHTML = `<div class="text-center bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-2xl border border-white w-full max-w-lg">
                     <i data-lucide="package" class="w-16 h-16 text-ocasa-cyan mx-auto mb-4"></i>
                     <h1 class="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">OCASA Logística</h1>
-                    <p class="text-slate-500 font-medium">Panel administrativo de reclamos y SLA.</p>
                 </div>`;
             } 
             
             else if (view === 'carga') {
                 title.innerText = "Nueva Carga";
                 frame.innerHTML = `
-                    <div class="max-w-2xl mx-auto bg-white rounded-[2rem] shadow-xl p-8 border border-slate-100">
+                    <div class="max-w-xl mx-auto bg-white rounded-[2.5rem] shadow-xl p-8 border border-slate-100">
                         <form id="formCarga" class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo</label>
-                                    <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                        <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
-                                    </select>
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Prioridad</label>
-                                    <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-red-500">
-                                        <option value="Baja">Baja</option><option value="Alta">Alta</option>
-                                    </select>
-                                </div>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo de reclamo</label>
+                                <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
+                                    <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
+                                </select>
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">N° Remito</label>
-                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none focus:ring-2 ring-ocasa-cyan/20">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Detalle</label>
-                                <textarea id="f-desc" rows="3" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium"></textarea>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Remito</label>
+                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none">
                             </div>
                             <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
                         </form>
@@ -263,35 +237,39 @@
                         fecha: new Date().toLocaleString(),
                         tipo: document.getElementById('f-tipo').value,
                         remito: document.getElementById('f-remito').value,
-                        descripcion: document.getElementById('f-desc').value,
-                        prioridad: document.getElementById('f-prioridad').value,
                         estado: "Pendiente", usuario: "Gonzalo Dorrego"
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("Reclamo Cargado!"); 
+                    alert("¡Cargado!"); 
                     init();
                 });
             }
 
             else if (view === 'historico') {
-                title.innerText = filterRemito ? "Resultado de búsqueda" : "Historial General";
+                title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
                 frame.innerHTML = `
                     <div class="max-w-6xl mx-auto space-y-4">
                         <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" value="${filterRemito || ''}" placeholder="Escribí un remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-full max-w-xs outline-none focus:border-ocasa-cyan">
-                            ${filterRemito ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic ml-2">Ver todos</button>` : ''}
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
+                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
                         </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
                             <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic tracking-widest">
-                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Fecha</th><th class="p-5">Estado</th></tr>
+                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
+                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Estado</th></tr>
                                 </thead>
                                 <tbody id="tablaBody" class="text-sm"></tbody>
                             </table>
                         </div>
                     </div>`;
                 
-                const data = filterRemito ? datosFull.filter(d => d.remito == filterRemito) : datosFull;
+                // ARREGLO FILTRO ESTADÍSTICA: Si el filtro es "Pendiente", filtramos por la columna estado
+                let data = datosFull;
+                if(filter === 'Pendiente') {
+                    data = datosFull.filter(d => d.estado === 'Pendiente');
+                } else if(filter) {
+                    data = datosFull.filter(d => d.remito == filter);
+                }
                 renderizarTabla(data);
             }
 
@@ -306,9 +284,8 @@
                             <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
                         </div>
                         <div onclick="showView('historico', 'Pendiente')" class="bg-white p-8 rounded-[2.5rem] border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-all">
-                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes Hoy <i data-lucide="external-link" class="w-4 h-4 opacity-50"></i></p>
+                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-4 h-4"></i></p>
                             <p class="text-6xl font-black tracking-tighter">${pendientes}</p>
-                            <p class="text-[10px] mt-4 font-bold underline uppercase">Click para gestionar</p>
                         </div>
                     </div>`;
             }
@@ -322,12 +299,10 @@
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
-                    <td class="p-5 text-[11px] text-slate-400 font-bold">${item.fecha}</td>
                     <td class="p-5">
                         <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`).join('');
         }
 
         function filtrarTabla() {
@@ -343,7 +318,7 @@
                 showView('home');
                 lucide.createIcons();
                 setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error cargando base"); }
+            } catch (e) { console.error("Error"); }
         }
         init();
     </script>
