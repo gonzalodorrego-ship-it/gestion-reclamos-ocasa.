@@ -9,11 +9,45 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root { --ocasa-cyan: #0097A7; }
-        body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; color: #1e293b; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         .text-ocasa-cyan { color: var(--ocasa-cyan); }
         
-        #sidebar { transition: transform 0.3s ease-in-out; z-index: 100; }
+        /* Animación Campana */
+        @keyframes bell-swing {
+            0% { transform: rotate(0); }
+            15% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            45% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+            75% { transform: rotate(0); }
+            100% { transform: rotate(0); }
+        }
+        .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
+
+        /* Panel de Notificaciones Dropdown */
+        #notifPanel { 
+            display: none; 
+            position: absolute; 
+            top: 70px; 
+            right: 0; 
+            width: 320px; 
+            max-height: 480px; 
+            background: white; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            z-index: 200;
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+        #notifPanel.show { display: block; animation: slideIn 0.25s ease-out; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #sidebar { transition: transform 0.3s ease; z-index: 100; }
         @media (max-width: 768px) {
             #sidebar { transform: translateX(-100%); position: fixed; height: 100vh; }
             #sidebar.open { transform: translateX(0); }
@@ -21,29 +55,22 @@
         }
 
         #menuContent { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        #menuContent.open { max-height: 800px; }
+        #menuContent.open { max-height: 600px; }
         
         .menu-link {
             display: flex; align-items: center; gap: 12px; padding: 12px 16px;
             border-radius: 12px; font-size: 13px; font-weight: 700; color: #64748b;
             transition: all 0.2s; text-transform: uppercase; width: 100%;
         }
+        .menu-link:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
 
         .hero-bg {
-            background-image: linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0.75)), 
-                              url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
+            background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), 
+                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
         }
         .priority-high { border-left: 5px solid #ef4444 !important; background-color: #fef2f2 !important; }
         #overlay { display: none; }
-        
-        /* ANIMACIÓN CORREGIDA */
-        @keyframes ring-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); color: #ef4444; }
-            100% { transform: scale(1); }
-        }
-        .bell-active { animation: ring-pulse 1.5s infinite ease-in-out; }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
@@ -52,14 +79,14 @@
 
     <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div class="p-8 border-b border-slate-100 flex flex-col items-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home'); toggleSidebar();">
-            <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase italic">Logística Global</span>
+            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home')">
+            <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase italic">Logística Global</span>
         </div>
         
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
             <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="menu" class="w-5 h-5 text-white"></i>
+                    <i data-lucide="menu" class="w-5 h-5"></i>
                     <span class="text-sm tracking-tight uppercase">Menú Principal</span>
                 </div>
                 <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="menuChevron"></i>
@@ -73,31 +100,40 @@
         </nav>
 
         <div class="p-6 border-t border-slate-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs text-black">GD</div>
-            <div class="flex flex-col text-black">
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs">GD</div>
+            <div class="flex flex-col">
                 <span class="text-xs font-bold leading-tight">Gonzalo Dorrego</span>
-                <span class="text-[9px] text-slate-400 uppercase font-bold">Admin Sistema</span>
+                <span class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Admin Sistema</span>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-white">
-        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-4 md:px-10 flex items-center justify-between shadow-sm">
+    <main class="flex-1 flex flex-col min-w-0 bg-white relative">
+        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-6 md:px-10 flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase">Panel de Gestión</h2>
+                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase tracking-tighter italic">Panel de Gestión</h2>
             </div>
             
             <div class="relative">
-                <button onclick="mostrarAlertas()" id="btnNotif" class="p-2 rounded-full hover:bg-slate-100 transition-all">
-                    <div id="wrapperBell" class="flex items-center justify-center">
-                        <i data-lucide="bell" class="w-6 h-6 text-slate-600"></i>
+                <button onclick="toggleNotificaciones()" id="btnBell" class="p-2 rounded-full hover:bg-slate-100 transition-all relative">
+                    <div id="bellWrapper" class="flex items-center justify-center">
+                        <i data-lucide="bell" class="w-6 h-6 text-slate-400"></i>
                     </div>
                     <span id="badgeNotif" class="hidden absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
                 </button>
+
+                <div id="notifPanel">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400 italic">Notificaciones SLA</span>
+                        <span id="notifCount" class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
+                    </div>
+                    <div id="notifList" class="overflow-y-auto max-h-[380px] p-2 space-y-2 bg-white">
+                        </div>
+                </div>
             </div>
         </header>
 
@@ -120,6 +156,17 @@
             document.getElementById('menuChevron').classList.toggle('rotate-180');
         }
 
+        function toggleNotificaciones() {
+            document.getElementById('notifPanel').classList.toggle('show');
+        }
+
+        // Cierre al hacer click afuera
+        window.addEventListener('click', (e) => {
+            if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
+                document.getElementById('notifPanel').classList.remove('show');
+            }
+        });
+
         function procesarAlertas() {
             const ahora = new Date();
             reclamosAtrasados = datosFull.filter(item => {
@@ -129,93 +176,140 @@
             });
 
             const badge = document.getElementById('badgeNotif');
-            const wrapper = document.getElementById('wrapperBell');
+            const wrapper = document.getElementById('bellWrapper');
+            const list = document.getElementById('notifList');
+            const count = document.getElementById('notifCount');
             
             if (reclamosAtrasados.length > 0) {
                 badge.innerText = reclamosAtrasados.length;
                 badge.classList.remove('hidden');
-                wrapper.classList.add('bell-active');
+                wrapper.classList.add('animate-bell');
+                count.innerText = reclamosAtrasados.length;
+                
+                list.innerHTML = reclamosAtrasados.map(r => `
+                    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm border-l-4 border-l-red-500 hover:bg-slate-50 transition-colors">
+                        <p class="text-[11px] font-black text-slate-800 uppercase italic leading-tight">${r.tipo}</p>
+                        <p class="text-[10px] text-slate-400 font-bold mt-1">Guía: ${r.remito}</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-[9px] text-red-500 font-black uppercase tracking-tighter">Vencido hace +24hs</span>
+                            <button onclick="irAReclamo('${r.remito}')" class="bg-slate-900 text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase tracking-widest">Ver</button>
+                        </div>
+                    </div>
+                `).join('');
             } else {
                 badge.classList.add('hidden');
-                wrapper.classList.remove('bell-active');
+                wrapper.classList.remove('animate-bell');
+                list.innerHTML = `<p class="p-8 text-center text-slate-400 text-xs font-bold italic">Sin alertas pendientes</p>`;
+                count.innerText = "0";
             }
         }
 
-        function mostrarAlertas() {
-            if (reclamosAtrasados.length === 0) {
-                alert("Sin reclamos fuera de SLA.");
-                return;
-            }
-            showView('alertas_list');
+        function irAReclamo(remito) {
+            document.getElementById('notifPanel').classList.remove('show');
+            showView('historico', remito);
         }
 
-        async function showView(view, filterValue = null) {
+        async function showView(view, filterRemito = null) {
             const frame = document.getElementById('contentFrame');
             const title = document.getElementById('viewTitle');
+            frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
             
             if (view === 'home') {
-                frame.className = "flex-1 overflow-y-auto p-4 md:p-10 hero-bg flex items-center justify-center";
+                frame.classList.add('hero-bg', 'flex', 'items-center', 'justify-center');
                 title.innerText = "Inicio";
+                frame.innerHTML = `<div class="text-center bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-2xl border border-white w-full max-w-lg">
+                    <i data-lucide="package" class="w-16 h-16 text-ocasa-cyan mx-auto mb-4"></i>
+                    <h1 class="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">OCASA Logística</h1>
+                    <p class="text-slate-500 font-medium">Panel administrativo de reclamos y SLA.</p>
+                </div>`;
+            } 
+            
+            else if (view === 'carga') {
+                title.innerText = "Nueva Carga";
                 frame.innerHTML = `
-                    <div class="text-center space-y-4 w-full max-w-sm md:max-w-xl bg-white/70 backdrop-blur-xl p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-2xl border border-white">
-                        <i data-lucide="truck" class="w-12 h-12 md:w-20 md:h-20 text-ocasa-cyan mx-auto mb-4"></i>
-                        <h1 class="text-xl md:text-4xl font-black text-slate-800 uppercase tracking-tighter">Gestión de Reclamos</h1>
-                        <p class="text-xs md:text-base text-slate-600 font-medium italic">Seleccione una operación en el menú para comenzar.</p>
+                    <div class="max-w-2xl mx-auto bg-white rounded-[2rem] shadow-xl p-8 border border-slate-100">
+                        <form id="formCarga" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo</label>
+                                    <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
+                                        <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Prioridad</label>
+                                    <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold text-red-500">
+                                        <option value="Baja">Baja</option><option value="Alta">Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">N° Remito</label>
+                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none focus:ring-2 ring-ocasa-cyan/20">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Detalle</label>
+                                <textarea id="f-desc" rows="3" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
+                        </form>
                     </div>`;
-            } else if (view === 'stats') {
-                frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
-                title.innerText = "Estadísticas";
-                const total = datosFull.length;
-                const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
-                const finalizados = total - pendientes;
-                const porc = total > 0 ? Math.round((finalizados/total)*100) : 0;
                 
+                document.getElementById('formCarga').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const btn = e.target.querySelector('button');
+                    btn.disabled = true; btn.innerText = "Enviando...";
+                    const payload = {
+                        fecha: new Date().toLocaleString(),
+                        tipo: document.getElementById('f-tipo').value,
+                        remito: document.getElementById('f-remito').value,
+                        descripcion: document.getElementById('f-desc').value,
+                        prioridad: document.getElementById('f-prioridad').value,
+                        estado: "Pendiente", usuario: "Gonzalo Dorrego"
+                    };
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    alert("Reclamo Cargado!"); 
+                    init();
+                });
+            }
+
+            else if (view === 'historico') {
+                title.innerText = filterRemito ? "Resultado de búsqueda" : "Historial General";
                 frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Total</p>
-                            <p class="text-4xl font-black text-slate-800">${total}</p>
+                    <div class="max-w-6xl mx-auto space-y-4">
+                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" value="${filterRemito || ''}" placeholder="Escribí un remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-full max-w-xs outline-none focus:border-ocasa-cyan">
+                            ${filterRemito ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic ml-2">Ver todos</button>` : ''}
                         </div>
-                        <div onclick="showView('historico', 'Pendiente')" class="bg-white p-6 rounded-3xl border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-colors">
-                            <p class="text-[10px] font-bold uppercase flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-3 h-3"></i></p>
-                            <p class="text-4xl font-black">${pendientes}</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-emerald-600">
-                            <p class="text-[10px] font-bold uppercase">SLA Objetivo</p>
-                            <p class="text-4xl font-black">${porc}%</p>
-                        </div>
-                    </div>`;
-            } else if (view === 'historico') {
-                frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
-                title.innerText = filterValue ? "Pendientes" : "Historial";
-                frame.innerHTML = `
-                    <div class="space-y-4 max-w-6xl mx-auto">
-                        <div class="flex justify-between items-center mb-4">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar..." class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm w-64 outline-none">
-                            ${filterValue ? `<button onclick="showView('historico')" class="text-xs font-bold text-red-500 uppercase">Ver todos</button>` : ''}
-                        </div>
-                        <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
                             <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
-                                    <tr><th class="p-4">Remito</th><th class="p-4">Tipo</th><th class="p-4">Estado</th></tr>
+                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic tracking-widest">
+                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Fecha</th><th class="p-5">Estado</th></tr>
                                 </thead>
                                 <tbody id="tablaBody" class="text-sm"></tbody>
                             </table>
                         </div>
                     </div>`;
-                const filtrados = filterValue ? datosFull.filter(d => d.estado === filterValue) : datosFull;
-                renderizarTabla(filtrados);
-            } else if (view === 'alertas_list') {
-                frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
-                title.innerText = "SLA Vencido";
+                
+                const data = filterRemito ? datosFull.filter(d => d.remito == filterRemito) : datosFull;
+                renderizarTabla(data);
+            }
+
+            else if (view === 'stats') {
+                title.innerText = "Estadísticas";
+                const total = datosFull.length;
+                const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
                 frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto space-y-4">
-                        ${reclamosAtrasados.map(r => `
-                            <div class="bg-white p-6 rounded-2xl border-l-4 border-red-500 shadow-sm flex justify-between items-center">
-                                <div><p class="text-lg font-black text-slate-800">${r.tipo}</p><p class="text-xs text-red-500">Remito: ${r.remito}</p></div>
-                                <button onclick="showView('historico')" class="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Ver</button>
-                            </div>
-                        `).join('')}
+                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                            <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
+                            <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
+                        </div>
+                        <div onclick="showView('historico', 'Pendiente')" class="bg-white p-8 rounded-[2.5rem] border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-all">
+                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes Hoy <i data-lucide="external-link" class="w-4 h-4 opacity-50"></i></p>
+                            <p class="text-6xl font-black tracking-tighter">${pendientes}</p>
+                            <p class="text-[10px] mt-4 font-bold underline uppercase">Click para gestionar</p>
+                        </div>
                     </div>`;
             }
             lucide.createIcons();
@@ -225,12 +319,21 @@
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
             tbody.innerHTML = data.map(item => `
-                <tr class="border-t border-slate-50">
-                    <td class="p-4 font-black">${item.remito}</td>
-                    <td class="p-4 text-slate-600">${item.tipo}</td>
-                    <td class="p-4"><span class="px-2 py-1 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-500' : 'bg-cyan-50 text-ocasa-cyan'} rounded-full text-[9px] font-bold uppercase border">${item.estado}</span></td>
+                <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td class="p-5 font-black text-slate-900">${item.remito}</td>
+                    <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
+                    <td class="p-5 text-[11px] text-slate-400 font-bold">${item.fecha}</td>
+                    <td class="p-5">
+                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function filtrarTabla() {
+            const term = document.getElementById('searchTable').value.toLowerCase();
+            const filtrados = datosFull.filter(d => d.remito.toLowerCase().includes(term));
+            renderizarTabla(filtrados);
         }
 
         async function init() {
@@ -238,11 +341,11 @@
                 const res = await fetch(WEB_APP_URL);
                 datosFull = await res.json();
                 showView('home');
-                setTimeout(procesarAlertas, 500); // Pequeño delay para asegurar que Lucide cargó
-            } catch (e) { console.error("Error"); }
+                lucide.createIcons();
+                setTimeout(procesarAlertas, 800); 
+            } catch (e) { console.error("Error cargando base"); }
         }
         init();
     </script>
 </body>
 </html>
-
