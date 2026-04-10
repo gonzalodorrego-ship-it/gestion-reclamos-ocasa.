@@ -133,7 +133,7 @@
     </main>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6ZbP0Zs6AkB4CxinKNsGW6wC11VB0PYGbLOhe7cY_iFVDsfWYfd1c3PFPN3ghfKw0pw/exec';
         let datosFull = [];
         let reclamosAtrasados = [];
 
@@ -152,7 +152,6 @@
             document.getElementById('notifPanel').classList.toggle('show');
         }
 
-        // Click fuera para cerrar notificaciones
         window.addEventListener('click', (e) => {
             if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
                 document.getElementById('notifPanel').classList.remove('show');
@@ -263,7 +262,6 @@
                         </div>
                     </div>`;
                 
-                // ARREGLO FILTRO ESTADÍSTICA: Si el filtro es "Pendiente", filtramos por la columna estado
                 let data = datosFull;
                 if(filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
@@ -307,7 +305,7 @@
 
         function filtrarTabla() {
             const term = document.getElementById('searchTable').value.toLowerCase();
-            const filtrados = datosFull.filter(d => d.remito.toLowerCase().includes(term));
+            const filtrados = datosFull.filter(d => d.remito.toString().toLowerCase().includes(term));
             renderizarTabla(filtrados);
         }
 
@@ -318,7 +316,7 @@
                 showView('home');
                 lucide.createIcons();
                 setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Error cargando datos"); }
         }
         init();
     </script>
