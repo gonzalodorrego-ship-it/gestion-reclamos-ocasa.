@@ -261,10 +261,17 @@
                             <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
                             ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
                         </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-x-auto">
                             <table class="w-full text-left">
                                 <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Estado</th></tr>
+                                    <tr>
+                                        <th class="p-5">Remito</th>
+                                        <th class="p-5">Tipo</th>
+                                        <th class="p-5">Prioridad</th>
+                                        <th class="p-5">Descripción</th>
+                                        <th class="p-5">Resolución</th>
+                                        <th class="p-5">Estado</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="tablaBody" class="text-sm"></tbody>
                             </table>
@@ -306,6 +313,11 @@
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
+                    <td class="p-5">
+                        <span class="font-bold ${item.prioridad === 'Alta' ? 'text-red-500' : 'text-slate-500'} text-xs uppercase">${item.prioridad}</span>
+                    </td>
+                    <td class="p-5 text-xs text-slate-500 max-w-xs truncate">${item.descripcion}</td>
+                    <td class="p-5 text-xs italic text-slate-500">${item.resolucion || '-'}</td>
                     <td class="p-5">
                         <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
                     </td>
