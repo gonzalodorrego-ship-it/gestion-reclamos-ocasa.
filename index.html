@@ -241,7 +241,7 @@
                     const btn = e.target.querySelector('button');
                     btn.disabled = true; btn.innerText = "Enviando...";
                     const payload = {
-                        fecha: new Date().toLocaleString(),
+                        fecha: new Date().toISOString(),
                         tipo: document.getElementById('f-tipo').value,
                         remito: document.getElementById('f-remito').value,
                         prioridad: document.getElementById('f-prioridad').value,
@@ -311,20 +311,28 @@
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
-            tbody.innerHTML = data.map(item => `
+            tbody.innerHTML = data.map(item => {
+                // Formato de fecha corta
+                const f = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
+                const prio = (item.prioridad || 'Baja').toUpperCase();
+                
+                return `
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${item.fecha ? item.fecha.split(',')[0] : '-'}</td>
+                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${f}</td>
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
                     <td class="p-5">
-                        <span class="font-bold ${item.prioridad === 'Alta' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${item.prioridad || 'Baja'}</span>
+                        <span class="font-bold ${prio === 'ALTA' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${prio}</span>
                     </td>
-                    <td class="p-5 text-xs text-slate-500 max-w-xs truncate">${item.descripcion || '-'}</td>
+                    <td class="p-5 text-xs text-slate-500 max-w-[150px] truncate">${item.descripcion || '-'}</td>
                     <td class="p-5 text-[11px] italic text-slate-400">${item.resolucion || '-'}</td>
                     <td class="p-5 text-right">
-                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
+                        <span class="px-3 py-1.5 ${item.estado.toUpperCase() === 'PENDIENTE' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">
+                            ${item.estado}
+                        </span>
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
         }
 
         function filtrarTabla() {
