@@ -68,6 +68,12 @@
             background-size: cover; background-position: center;
         }
         #overlay { display: none; }
+
+        /* Estilo para la barra de desplazamiento horizontal */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--ocasa-cyan); }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
@@ -262,21 +268,23 @@
                             <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
                             ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
                         </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-x-auto shadow-sm">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                    <tr>
-                                        <th class="p-5">Fecha</th>
-                                        <th class="p-5">Remito</th>
-                                        <th class="p-5">Tipo</th>
-                                        <th class="p-5">Prioridad</th>
-                                        <th class="p-5">Descripción</th>
-                                        <th class="p-5">Resolución</th>
-                                        <th class="p-5 text-right">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaBody" class="text-sm"></tbody>
-                            </table>
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto custom-scrollbar">
+                                <table class="w-full text-left min-w-[800px]">
+                                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
+                                        <tr>
+                                            <th class="p-5">Fecha</th>
+                                            <th class="p-5">Remito</th>
+                                            <th class="p-5">Tipo</th>
+                                            <th class="p-5">Prioridad</th>
+                                            <th class="p-5">Descripción</th>
+                                            <th class="p-5">Resolución</th>
+                                            <th class="p-5 text-right">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaBody" class="text-sm"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>`;
                 
@@ -312,7 +320,6 @@
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
             tbody.innerHTML = data.map(item => {
-                // Formato de fecha corta
                 const f = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
                 const prio = (item.prioridad || 'Baja').toUpperCase();
                 
@@ -324,8 +331,8 @@
                     <td class="p-5">
                         <span class="font-bold ${prio === 'ALTA' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${prio}</span>
                     </td>
-                    <td class="p-5 text-xs text-slate-500 max-w-[150px] truncate">${item.descripcion || '-'}</td>
-                    <td class="p-5 text-[11px] italic text-slate-400">${item.resolucion || '-'}</td>
+                    <td class="p-5 text-xs text-slate-500 max-w-[200px] break-words">${item.descripcion || '-'}</td>
+                    <td class="p-5 text-[11px] italic text-slate-400 max-w-[200px] break-words">${item.resolucion || '-'}</td>
                     <td class="p-5 text-right">
                         <span class="px-3 py-1.5 ${item.estado.toUpperCase() === 'PENDIENTE' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">
                             ${item.estado}
