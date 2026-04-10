@@ -24,7 +24,7 @@
         }
         .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
 
-        /* Dropdown Notificaciones */
+        /* Panel Notificaciones */
         #notifPanel { 
             display: none; 
             position: absolute; 
@@ -69,7 +69,7 @@
         }
         #overlay { display: none; }
 
-        /* Estilo para la barra de desplazamiento horizontal */
+        /* Scrollbar Personalizada */
         .custom-scrollbar::-webkit-scrollbar { height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -265,12 +265,12 @@
                 frame.innerHTML = `
                     <div class="max-w-6xl mx-auto space-y-4">
                         <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none" value="${filter || ''}">
+                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Limpiar Filtro</button>` : ''}
                         </div>
                         <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
                             <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full text-left min-w-[800px]">
+                                <table class="w-full text-left min-w-[1000px]">
                                     <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
                                         <tr>
                                             <th class="p-5">Fecha</th>
@@ -292,7 +292,7 @@
                 if(filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
                 } else if(filter) {
-                    data = datosFull.filter(d => d.remito == filter);
+                    data = datosFull.filter(d => d.remito.toString().includes(filter));
                 }
                 renderizarTabla(data);
             }
@@ -319,6 +319,12 @@
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-20 text-center text-slate-400 font-bold italic">No existen registros</td></tr>`;
+                return;
+            }
+
             tbody.innerHTML = data.map(item => {
                 const f = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
                 const prio = (item.prioridad || 'Baja').toUpperCase();
@@ -331,8 +337,8 @@
                     <td class="p-5">
                         <span class="font-bold ${prio === 'ALTA' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${prio}</span>
                     </td>
-                    <td class="p-5 text-xs text-slate-500 max-w-[200px] break-words">${item.descripcion || '-'}</td>
-                    <td class="p-5 text-[11px] italic text-slate-400 max-w-[200px] break-words">${item.resolucion || '-'}</td>
+                    <td class="p-5 text-xs text-slate-500 max-w-[250px] break-words">${item.descripcion || '-'}</td>
+                    <td class="p-5 text-[11px] italic text-slate-400 max-w-[250px] break-words">${item.resolucion || '-'}</td>
                     <td class="p-5 text-right">
                         <span class="px-3 py-1.5 ${item.estado.toUpperCase() === 'PENDIENTE' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">
                             ${item.estado}
