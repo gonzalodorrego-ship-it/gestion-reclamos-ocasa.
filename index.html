@@ -261,12 +261,12 @@
             }
 
             else if (view === 'historico') {
-                title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
+                title.innerText = filter ? `Búsqueda: ${filter}` : "Historial General";
                 frame.innerHTML = `
                     <div class="max-w-6xl mx-auto space-y-4">
                         <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none" value="${filter || ''}">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Limpiar Filtro</button>` : ''}
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar en todos los campos..." class="p-3 bg-slate-50 border rounded-xl text-sm w-64 outline-none" value="${filter || ''}">
+                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Limpiar</button>` : ''}
                         </div>
                         <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
                             <div class="overflow-x-auto custom-scrollbar">
@@ -292,7 +292,10 @@
                 if(filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
                 } else if(filter) {
-                    data = datosFull.filter(d => d.remito.toString().includes(filter));
+                    const term = filter.toLowerCase();
+                    data = datosFull.filter(d => 
+                        Object.values(d).some(val => val.toString().toLowerCase().includes(term))
+                    );
                 }
                 renderizarTabla(data);
             }
@@ -350,7 +353,12 @@
 
         function filtrarTabla() {
             const term = document.getElementById('searchTable').value.toLowerCase();
-            const filtrados = datosFull.filter(d => d.remito.toString().toLowerCase().includes(term));
+            // Filtra en CUALQUIER campo del objeto
+            const filtrados = datosFull.filter(d => 
+                Object.values(d).some(val => 
+                    val.toString().toLowerCase().includes(term)
+                )
+            );
             renderizarTabla(filtrados);
         }
 
