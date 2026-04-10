@@ -265,6 +265,7 @@
                             <table class="w-full text-left">
                                 <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
                                     <tr>
+                                        <th class="p-5">Fecha</th>
                                         <th class="p-5">Remito</th>
                                         <th class="p-5">Tipo</th>
                                         <th class="p-5">Prioridad</th>
@@ -309,8 +310,11 @@
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
-            tbody.innerHTML = data.map(item => `
+            tbody.innerHTML = data.map(item => {
+                const fechaCorta = item.fecha ? item.fecha.split(',')[0] : '-';
+                return `
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${fechaCorta}</td>
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
                     <td class="p-5">
@@ -321,7 +325,8 @@
                     <td class="p-5">
                         <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
         }
 
         function filtrarTabla() {
