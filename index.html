@@ -12,338 +12,103 @@
         body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; color: #1e293b; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         
-        /* Animación Campana */
-        @keyframes bell-swing {
-            0% { transform: rotate(0); }
-            15% { transform: rotate(15deg); }
-            30% { transform: rotate(-15deg); }
-            45% { transform: rotate(10deg); }
-            60% { transform: rotate(-10deg); }
-            75% { transform: rotate(0); }
-            100% { transform: rotate(0); }
-        }
-        .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
-
-        /* Dropdown Notificaciones */
-        #notifPanel { 
-            display: none; 
-            position: absolute; 
-            top: 65px; 
-            right: 0; 
-            width: 320px; 
-            max-height: 480px; 
-            background: white; 
-            border-radius: 24px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            z-index: 200;
-            border: 1px solid #f1f5f9;
-        }
-        #notifPanel.show { display: block; animation: slideIn 0.2s ease-out; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* Estilo para que la tabla sea scrolleable en móvil */
+        .table-container { overflow-x: auto; border-radius: 2rem; border: 1px solid #e2e8f0; background: white; }
+        
         #sidebar { transition: transform 0.3s ease; z-index: 100; }
         @media (max-width: 768px) {
             #sidebar { transform: translateX(-100%); position: fixed; height: 100vh; }
             #sidebar.open { transform: translateX(0); }
-            #overlay.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
         }
 
-        #menuContent { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        #menuContent.open { max-height: 500px; }
-        
         .menu-link {
             display: flex; align-items: center; gap: 12px; padding: 14px 20px;
             border-radius: 16px; font-size: 13px; font-weight: 700; color: #64748b;
             transition: all 0.2s; text-transform: uppercase;
         }
         .menu-link:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
-
-        .hero-bg {
-            background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), 
-                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
-            background-size: cover; background-position: center;
-        }
-        #overlay { display: none; }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
-
-    <div id="overlay" onclick="toggleSidebar()"></div>
 
     <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div class="p-8 border-b border-slate-100 flex flex-col items-center">
             <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home')">
             <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase italic">Logística Global</span>
         </div>
-        
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                    <span class="text-sm tracking-tight uppercase">Menú Principal</span>
-                </div>
-                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="menuChevron"></i>
-            </button>
-            
-            <div id="menuContent" class="mt-2 space-y-1 bg-slate-50 rounded-3xl p-2 border border-slate-100">
-                <button onclick="showView('carga'); toggleSidebar();" class="menu-link w-full"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
-                <button onclick="showView('historico'); toggleSidebar();" class="menu-link w-full"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
-                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
-            </div>
+            <button onclick="showView('carga')" class="menu-link w-full"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
+            <button onclick="showView('historico')" class="menu-link w-full text-ocasa-cyan bg-slate-50"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
         </nav>
-
-        <div class="p-6 border-t border-slate-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs">GD</div>
-            <div class="flex flex-col">
-                <span class="text-xs font-bold leading-tight">Gonzalo Dorrego</span>
-                <span class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Admin Sistema</span>
-            </div>
+        <div class="p-6 border-t border-slate-100 flex items-center gap-3 text-xs font-bold">
+            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-ocasa-cyan italic">GD</div>
+            <span>Gonzalo Dorrego</span>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-white relative">
-        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-6 md:px-10 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600"><i data-lucide="menu"></i></button>
-                <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase italic tracking-tighter">Panel de Gestión</h2>
-            </div>
-            
-            <div class="relative">
-                <button onclick="toggleNotificaciones()" id="btnBell" class="p-2 rounded-full hover:bg-slate-100 transition-all relative">
-                    <div id="bellWrapper"><i data-lucide="bell" class="w-6 h-6 text-slate-400"></i></div>
-                    <span id="badgeNotif" class="hidden absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
-                </button>
-
-                <div id="notifPanel">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-[24px]">
-                        <span class="text-[10px] font-black uppercase text-slate-400 italic">Alertas SLA (+24hs)</span>
-                        <span id="notifCount" class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
-                    </div>
-                    <div id="notifList" class="overflow-y-auto max-h-[350px] p-2 space-y-2"></div>
-                </div>
-            </div>
+    <main class="flex-1 flex flex-col min-w-0 bg-white">
+        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-6 flex items-center justify-between">
+            <h2 id="viewTitle" class="text-lg font-black text-slate-800 uppercase italic tracking-tighter">Historial General</h2>
+            <button onclick="init()" class="p-2 hover:bg-slate-50 rounded-full"><i data-lucide="rotate-cw" class="w-5 h-5 text-slate-400"></i></button>
         </header>
 
-        <div id="contentFrame" class="flex-1 overflow-y-auto p-4 md:p-10"></div>
+        <div id="contentFrame" class="flex-1 overflow-y-auto p-4 md:p-10">
+            <div class="table-container">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
+                        <tr>
+                            <th class="p-5">Fecha</th>
+                            <th class="p-5">Remito</th>
+                            <th class="p-5">Tipo</th>
+                            <th class="p-5">Prioridad</th>
+                            <th class="p-5">Descripción</th>
+                            <th class="p-5">Resolución</th>
+                            <th class="p-5">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody" class="text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxFHWQ13RweDSf1sfABKyTfFcsRgg99_nhkjVI9EIS9VvfLeJp5J2ys5UWDKgrg71F1pw/exec';
-        let datosFull = [];
-        let reclamosAtrasados = [];
 
-        function toggleSidebar() {
-            if (window.innerWidth >= 768) return;
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('show');
-        }
-
-        function toggleMenu() {
-            document.getElementById('menuContent').classList.toggle('open');
-            document.getElementById('menuChevron').classList.toggle('rotate-180');
-        }
-
-        function toggleNotificaciones() {
-            document.getElementById('notifPanel').classList.toggle('show');
-        }
-
-        window.addEventListener('click', (e) => {
-            if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
-                document.getElementById('notifPanel').classList.remove('show');
-            }
-        });
-
-        function procesarAlertas() {
-            const ahora = new Date();
-            reclamosAtrasados = datosFull.filter(item => {
-                const fechaIngreso = new Date(item.fecha);
-                const diff = (ahora - fechaIngreso) / (1000 * 60 * 60);
-                return item.estado === 'Pendiente' && diff >= 24;
-            });
-
-            const badge = document.getElementById('badgeNotif');
-            const wrapper = document.getElementById('bellWrapper');
-            const list = document.getElementById('notifList');
-            const count = document.getElementById('notifCount');
-            
-            if (reclamosAtrasados.length > 0) {
-                badge.innerText = reclamosAtrasados.length;
-                badge.classList.remove('hidden');
-                wrapper.classList.add('animate-bell');
-                count.innerText = reclamosAtrasados.length;
-                list.innerHTML = reclamosAtrasados.map(r => `
-                    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm border-l-4 border-l-red-500">
-                        <p class="text-[11px] font-black text-slate-800 uppercase italic">${r.tipo}</p>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1">Guía: ${r.remito}</p>
-                        <div class="flex justify-between items-center mt-3">
-                            <span class="text-[9px] text-red-500 font-bold uppercase italic">Vencido</span>
-                            <button onclick="verReclamo('${r.remito}')" class="bg-slate-900 text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase">Ver</button>
-                        </div>
-                    </div>`).join('');
-            } else {
-                badge.classList.add('hidden');
-                wrapper.classList.remove('animate-bell');
-                list.innerHTML = `<p class="p-8 text-center text-slate-400 text-xs font-bold italic">Todo al día</p>`;
-            }
-        }
-
-        function verReclamo(remito) {
-            document.getElementById('notifPanel').classList.remove('show');
-            showView('historico', remito);
-        }
-
-        async function showView(view, filter = null) {
-            const frame = document.getElementById('contentFrame');
-            const title = document.getElementById('viewTitle');
-            frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
-            
-            if (view === 'home') {
-                frame.classList.add('hero-bg', 'flex', 'items-center', 'justify-center');
-                title.innerText = "Inicio";
-                frame.innerHTML = `<div class="text-center bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-2xl border border-white w-full max-w-lg">
-                    <i data-lucide="package" class="w-16 h-16 text-ocasa-cyan mx-auto mb-4"></i>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">OCASA Logística</h1>
-                </div>`;
-            } 
-            
-            else if (view === 'carga') {
-                title.innerText = "Nueva Carga";
-                frame.innerHTML = `
-                    <div class="max-w-xl mx-auto bg-white rounded-[2.5rem] shadow-xl p-8 border border-slate-100">
-                        <form id="formCarga" class="space-y-4">
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo de reclamo</label>
-                                <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                    <option>Producto equivocado</option><option>Color equivocado</option><option>No recibí producto</option><option>Caja rota</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Remito</label>
-                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none">
-                            </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Prioridad</label>
-                                <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                    <option>Baja</option><option>Media</option><option>Alta</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Descripción del problema</label>
-                                <textarea id="f-descripcion" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium outline-none h-24"></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
-                        </form>
-                    </div>`;
-                
-                document.getElementById('formCarga').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const btn = e.target.querySelector('button');
-                    btn.disabled = true; btn.innerText = "Enviando...";
-                    const payload = {
-                        tipo: document.getElementById('f-tipo').value,
-                        remito: document.getElementById('f-remito').value,
-                        prioridad: document.getElementById('f-prioridad').value,
-                        descripcion: document.getElementById('f-descripcion').value
-                    };
-                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Reclamo sincronizado exitosamente!"); 
-                    showView('home');
-                    init();
-                });
-            }
-
-            else if (view === 'historico') {
-                title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
-                frame.innerHTML = `
-                    <div class="max-w-6xl mx-auto space-y-4">
-                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
-                        </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                    <tr>
-                                        <th class="p-5">Fecha</th>
-                                        <th class="p-5">Remito</th>
-                                        <th class="p-5">Tipo</th>
-                                        <th class="p-5">Prioridad</th>
-                                        <th class="p-5">Descripción</th>
-                                        <th class="p-5">Resolución</th>
-                                        <th class="p-5">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaBody" class="text-sm"></tbody>
-                            </table>
-                        </div>
-                    </div>`;
-                
-                let data = datosFull;
-                if(filter === 'Pendiente') {
-                    data = datosFull.filter(d => d.estado === 'Pendiente');
-                } else if(filter) {
-                    data = datosFull.filter(d => d.remito == filter);
-                }
-                renderizarTabla(data);
-            }
-
-            else if (view === 'stats') {
-                title.innerText = "Estadísticas";
-                const total = datosFull.length;
-                const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
-                frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
-                            <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
-                        </div>
-                        <div onclick="showView('historico', 'Pendiente')" class="bg-white p-8 rounded-[2.5rem] border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-all">
-                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-4 h-4"></i></p>
-                            <p class="text-6xl font-black tracking-tighter">${pendientes}</p>
-                        </div>
-                    </div>`;
-            }
-            lucide.createIcons();
+        async function init() {
+            try {
+                const res = await fetch(WEB_APP_URL);
+                const datos = await res.json();
+                renderizarTabla(datos);
+            } catch (e) { console.error("Error cargando datos"); }
         }
 
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
             tbody.innerHTML = data.map(item => {
-                const fechaCorta = item.fecha ? item.fecha.split(',')[0] : '-';
+                // Formateamos la fecha para que sea legible y corta
+                const fechaDisplay = item.fecha ? item.fecha.split(',')[0] : '-';
+                
                 return `
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${fechaCorta}</td>
+                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${fechaDisplay}</td>
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
                     <td class="p-5">
-                        <span class="font-bold ${item.prioridad === 'Alta' ? 'text-red-500' : 'text-slate-500'} text-xs uppercase">${item.prioridad}</span>
+                        <span class="font-bold ${item.prioridad === 'Alta' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${item.prioridad}</span>
                     </td>
-                    <td class="p-5 text-xs text-slate-500 max-w-xs truncate">${item.descripcion}</td>
-                    <td class="p-5 text-xs italic text-slate-500">${item.resolucion || '-'}</td>
-                    <td class="p-5">
-                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
+                    <td class="p-5 text-xs text-slate-500 max-w-[200px] truncate">${item.descripcion}</td>
+                    <td class="p-5 text-[11px] italic text-slate-400">${item.resolucion || '-'}</td>
+                    <td class="p-5 text-right">
+                        <span class="px-3 py-1.5 ${item.estado === 'Finalizado' ? 'bg-cyan-50 text-ocasa-cyan border-cyan-200' : 'bg-orange-50 text-orange-600 border-orange-200'} rounded-full text-[9px] font-black uppercase border tracking-tighter">${item.estado}</span>
                     </td>
                 </tr>`;
             }).join('');
+            lucide.createIcons();
         }
 
-        function filtrarTabla() {
-            const term = document.getElementById('searchTable').value.toLowerCase();
-            const filtrados = datosFull.filter(d => d.remito.toString().toLowerCase().includes(term));
-            renderizarTabla(filtrados);
-        }
-
-        async function init() {
-            try {
-                const res = await fetch(WEB_APP_URL);
-                datosFull = await res.json();
-                showView('home');
-                lucide.createIcons();
-                setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error cargando datos"); }
-        }
         init();
     </script>
 </body>
