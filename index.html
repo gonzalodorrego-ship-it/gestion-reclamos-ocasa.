@@ -133,7 +133,7 @@
     </main>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6ZbP0Zs6AkB4CxinKNsGW6wC11VB0PYGbLOhe7cY_iFVDsfWYfd1c3PFPN3ghfKw0pw/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxFHWQ13RweDSf1sfABKyTfFcsRgg99_nhkjVI9EIS9VvfLeJp5J2ys5UWDKgrg71F1pw/exec';
         let datosFull = [];
         let reclamosAtrasados = [];
 
@@ -218,11 +218,19 @@
                         <form id="formCarga" class="space-y-4">
                             <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo de reclamo</label>
                                 <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                    <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
+                                    <option>Producto equivocado</option><option>Color equivocado</option><option>No recibí producto</option><option>Caja rota</option>
                                 </select>
                             </div>
                             <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Remito</label>
                                 <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none">
+                            </div>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Prioridad</label>
+                                <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
+                                    <option>Baja</option><option>Media</option><option>Alta</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Descripción del problema</label>
+                                <textarea id="f-descripcion" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium outline-none h-24"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
                         </form>
@@ -233,13 +241,14 @@
                     const btn = e.target.querySelector('button');
                     btn.disabled = true; btn.innerText = "Enviando...";
                     const payload = {
-                        fecha: new Date().toLocaleString(),
                         tipo: document.getElementById('f-tipo').value,
                         remito: document.getElementById('f-remito').value,
-                        estado: "Pendiente", usuario: "Gonzalo Dorrego"
+                        prioridad: document.getElementById('f-prioridad').value,
+                        descripcion: document.getElementById('f-descripcion').value
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Cargado!"); 
+                    alert("¡Reclamo sincronizado exitosamente!"); 
+                    showView('home');
                     init();
                 });
             }
