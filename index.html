@@ -306,7 +306,7 @@
                 const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
                 frame.innerHTML = `
                     <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <div onclick="showView('historico')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm cursor-pointer hover:bg-slate-50 transition-all">
                             <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
                             <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
                         </div>
