@@ -333,7 +333,8 @@
                 const prio = (item.prioridad || 'Baja').toUpperCase();
                 
                 return `
-                <tr class="border-t border-slate-200 hover:bg-slate-50/50 transition-colors">
+                <tr class="border-t border-slate-300 hover:bg-slate-50/50 transition-colors">
+                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${f}</td>
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
                     <td class="p-5">
