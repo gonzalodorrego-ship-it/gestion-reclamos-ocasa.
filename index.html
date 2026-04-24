@@ -463,8 +463,7 @@
                 }
                 renderizarTabla(data);
             }
-
-            else if (view === 'stats') {
+else if (view === 'stats') {
                 title.innerText = "Dashboard";
 
                 const total      = datosFull.length;
@@ -478,18 +477,14 @@
                 datosFull.forEach(d => {
                     const p = d.prioridad || 'Baja';
                     if (prioCount[p] !== undefined) prioCount[p]++;
-
                     const t = d.tipo || 'Sin tipo';
                     tipoCount[t] = (tipoCount[t] || 0) + 1;
-
                     const e = d.estado || 'Sin estado';
                     estadoCount[e] = (estadoCount[e] || 0) + 1;
                 });
 
                 frame.innerHTML = `
                 <div class="max-w-5xl mx-auto space-y-6">
-
-                    <!-- KPIs -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div onclick="showView('historico')" class="chart-card cursor-pointer transition-opacity hover:opacity-80">
                             <p class="chart-label">Total</p>
@@ -499,42 +494,42 @@
                             <p class="chart-label" style="color:var(--ocasa-warning);">Pendientes ›</p>
                             <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${pendientes}</p>
                         </div>
-                        <div class="chart-card" style="border-left: 4px solid var(--ocasa-success);">
+                        <div onclick="showView('historico','Finalizado')" class="chart-card cursor-pointer transition-opacity hover:opacity-80" style="border-left: 4px solid var(--ocasa-success);">
                             <p class="chart-label" style="color:#5a7d2f;">Resueltos</p>
                             <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${resueltos}</p>
                         </div>
-                        <div class="chart-card" style="border-left: 4px solid var(--ocasa-danger);">
+                        <div onclick="showView('historico','Alta')" class="chart-card cursor-pointer transition-opacity hover:opacity-80" style="border-left: 4px solid var(--ocasa-danger);">
                             <p class="chart-label" style="color:var(--ocasa-danger);">Alta Prioridad</p>
                             <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${prioCount.Alta}</p>
                         </div>
                     </div>
 
-                    <!-- Gráficos fila 1 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="chart-card">
-                            <p class="chart-label">Estado de Reclamos</p>
-                            <div style="max-height:220px; display:flex; justify-content:center;">
-                                <canvas id="chartEstado"></canvas>
-                            </div>
-                        </div>
-                        <div class="chart-card">
-                            <p class="chart-label">Prioridad</p>
-                            <div style="max-height:220px; display:flex; justify-content:center;">
-                                <canvas id="chartPrio"></canvas>
-                            </div>
-                        </div>
+                        <div class="chart-card"><p class="chart-label">Estado de Reclamos</p><div style="max-height:220px; display:flex; justify-content:center;"><canvas id="chartEstado"></canvas></div></div>
+                        <div class="chart-card"><p class="chart-label">Prioridad</p><div style="max-height:220px; display:flex; justify-content:center;"><canvas id="chartPrio"></canvas></div></div>
                     </div>
 
-                    <!-- Gráfico fila 2: por tipo (barra horizontal) -->
                     <div class="chart-card">
                         <p class="chart-label">Reclamos por Tipo</p>
                         <canvas id="chartTipo" style="max-height:220px;"></canvas>
                     </div>
-
                 </div>`;
 
                 setTimeout(() => {
                     const chartFont = { family: 'Montserrat', weight: '700' };
+                    
+                    // Función para filtrar al hacer clic
+                    const handleChartClick = (elements, chart) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = chart.data.labels[index];
+                            showView('historico', label);
+                        }
+                    };
+
+                    const hoverConfig = (event, chartElement) => {
+                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                    };
 
                     // Donut: estados
                     const ctxE = document.getElementById('chartEstado');
@@ -546,18 +541,14 @@
                                 datasets: [{
                                     data: Object.values(estadoCount),
                                     backgroundColor: ['#FFAB40','#8FBF4C','#0099A8','#D64045','#7A959E'],
-                                    borderWidth: 0,
-                                    hoverOffset: 6
+                                    borderWidth: 0
                                 }]
                             },
                             options: {
                                 cutout: '65%',
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: { font: chartFont, padding: 14, boxWidth: 12 }
-                                    }
-                                }
+                                onClick: (e, el, chart) => handleChartClick(el, chart),
+                                onHover: hoverConfig,
+                                plugins: { legend: { position: 'bottom', labels: { font: chartFont } } }
                             }
                         }));
                     }
@@ -572,61 +563,48 @@
                                 datasets: [{
                                     data: [prioCount.Alta, prioCount.Media, prioCount.Baja],
                                     backgroundColor: ['#D64045','#FFAB40','#8FBF4C'],
-                                    borderWidth: 0,
-                                    hoverOffset: 6
+                                    borderWidth: 0
                                 }]
                             },
                             options: {
                                 cutout: '65%',
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: { font: chartFont, padding: 14, boxWidth: 12 }
-                                    }
-                                }
+                                onClick: (e, el, chart) => handleChartClick(el, chart),
+                                onHover: hoverConfig,
+                                plugins: { legend: { position: 'bottom', labels: { font: chartFont } } }
                             }
                         }));
                     }
 
-                    // Barra horizontal: por tipo
+                    // Barra horizontal: por tipo (CORREGIDO ESPAÑOL)
                     const ctxT = document.getElementById('chartTipo');
                     if (ctxT) {
-                        const tipos  = Object.keys(tipoCount);
-                        const counts = Object.values(tipoCount);
+                        const tipos = Object.keys(tipoCount);
                         const palette = ['#0099A8','#002639','#8FBF4C','#FFAB40','#D64045','#7A959E'];
                         activeCharts.push(new Chart(ctxT, {
                             type: 'bar',
                             data: {
                                 labels: tipos,
                                 datasets: [{
-                                    data: counts,
+                                    label: 'Cantidad', // <--- Texto en español
+                                    data: Object.values(tipoCount),
                                     backgroundColor: tipos.map((_, i) => palette[i % palette.length]),
-                                    borderRadius: 4,
-                                    borderSkipped: false
+                                    borderRadius: 4
                                 }]
                             },
                             options: {
                                 indexAxis: 'y',
+                                onClick: (e, el, chart) => handleChartClick(el, chart),
+                                onHover: hoverConfig,
                                 plugins: { legend: { display: false } },
                                 scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        ticks: { font: chartFont, color: '#7A959E', stepSize: 1 },
-                                        grid: { color: 'rgba(0,0,0,0.05)' }
-                                    },
-                                    y: {
-                                        ticks: { font: chartFont, color: '#4A6670' },
-                                        grid: { display: false }
-                                    }
+                                    x: { ticks: { font: chartFont }, beginAtZero: true },
+                                    y: { ticks: { font: chartFont } }
                                 }
                             }
                         }));
                     }
                 }, 100);
             }
-
-            lucide.createIcons();
-        }
 
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
