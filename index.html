@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             /* Color · Primarios */
@@ -49,33 +48,20 @@
             --ocasa-space-3xl: 64px;
         }
 
-        /* ── FIX: clases custom que Tailwind CDN no puede resolver ── */
-        .bg-ocasa-surface      { background-color: var(--ocasa-surface) !important; }
-        .bg-ocasa-surface-alt  { background-color: var(--ocasa-surface-alt) !important; }
-        .bg-ocasa-calypso      { background-color: var(--ocasa-calypso) !important; }
-        .bg-ocasa-navy         { background-color: var(--ocasa-navy) !important; }
-        .bg-ocasa-bg           { background-color: var(--ocasa-bg) !important; }
-
-        .text-ocasa-text-1     { color: var(--ocasa-text-1) !important; }
-        .text-ocasa-text-2     { color: var(--ocasa-text-2) !important; }
-        .text-ocasa-text-3     { color: var(--ocasa-text-3) !important; }
-        .text-ocasa-calypso    { color: var(--ocasa-calypso) !important; }
-        .text-ocasa-danger     { color: var(--ocasa-danger) !important; }
-        .text-ocasa-warning    { color: var(--ocasa-warning) !important; }
-
-        .border-ocasa-border   { border-color: var(--ocasa-border) !important; }
-        .border-ocasa-danger   { border-color: var(--ocasa-danger) !important; }
-
-        .hover\:bg-ocasa-surface-alt:hover { background-color: var(--ocasa-surface-alt) !important; }
-        .hover\:text-ocasa-calypso:hover   { color: var(--ocasa-calypso) !important; }
-        /* ─────────────────────────────────────────────────────────── */
-
         body {
             font-family: var(--ocasa-font);
             background-color: var(--ocasa-bg);
             color: var(--ocasa-text-1);
         }
 
+        .bg-ocasa-calypso {
+            background-color: var(--ocasa-calypso);
+        }
+
+        .text-ocasa-text-1 { color: var(--ocasa-text-1); }
+        .text-ocasa-text-2 { color: var(--ocasa-text-2); }
+        .text-ocasa-text-3 { color: var(--ocasa-text-3); }
+        
         body::before {
             content: '';
             position: fixed;
@@ -88,15 +74,17 @@
             pointer-events: none;
         }
 
-        body { padding-top: 6px; }
+        body {
+            padding-top: 6px;
+        }
 
         @keyframes bell-swing {
-            0%   { transform: rotate(0); }
-            15%  { transform: rotate(15deg); }
-            30%  { transform: rotate(-15deg); }
-            45%  { transform: rotate(10deg); }
-            60%  { transform: rotate(-10deg); }
-            75%  { transform: rotate(0); }
+            0% { transform: rotate(0); }
+            15% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            45% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+            75% { transform: rotate(0); }
             100% { transform: rotate(0); }
         }
 
@@ -125,11 +113,20 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        #sidebar { transition: transform 0.3s ease; z-index: 100; }
+        #sidebar {
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
 
         @media (max-width: 768px) {
             #sidebar {
@@ -137,7 +134,9 @@
                 position: fixed;
                 height: 100vh;
             }
-            #sidebar.open { transform: translateX(0); }
+            #sidebar.open {
+                transform: translateX(0);
+            }
             #overlay.show {
                 display: block;
                 position: fixed;
@@ -152,7 +151,10 @@
             overflow: hidden;
             transition: max-height 0.4s ease;
         }
-        #menuContent.open { max-height: 500px; }
+
+        #menuContent.open {
+            max-height: 500px;
+        }
 
         .menu-link {
             display: flex;
@@ -167,6 +169,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
         .menu-link:hover {
             background-color: var(--ocasa-surface-alt);
             color: var(--ocasa-calypso);
@@ -179,46 +182,54 @@
             background-position: center;
         }
 
-        #overlay { display: none; }
+        #overlay {
+            display: none;
+        }
 
-        .custom-scrollbar::-webkit-scrollbar       { height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track  { background: var(--ocasa-surface-alt); }
-        .custom-scrollbar::-webkit-scrollbar-thumb  { background: var(--ocasa-border); border-radius: var(--ocasa-radius-xl); }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--ocasa-calypso); }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
 
-        .status-positivo  { background-color: rgba(143,191,76,0.15); color: #5a7d2f; border: 1px solid rgba(143,191,76,0.3); }
-        .status-importante{ background-color: rgba(0,153,168,0.12); color: var(--ocasa-calypso-dark); border: 1px solid rgba(0,153,168,0.2); }
-        .status-atencion  { background-color: rgba(255,171,64,0.18); color: #d97a26; border: 1px solid rgba(255,171,64,0.3); }
-        .status-critico   { background-color: rgba(214,64,69,0.12); color: var(--ocasa-danger); border: 1px solid rgba(214,64,69,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--ocasa-surface-alt);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--ocasa-border);
+            border-radius: var(--ocasa-radius-xl);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--ocasa-calypso);
+        }
+
+        .status-positivo {
+            background-color: rgba(143, 191, 76, 0.15);
+            color: #5a7d2f;
+            border: 1px solid rgba(143, 191, 76, 0.3);
+        }
+
+        .status-importante {
+            background-color: rgba(0, 153, 168, 0.12);
+            color: var(--ocasa-calypso-dark);
+            border: 1px solid rgba(0, 153, 168, 0.2);
+        }
+
+        .status-atencion {
+            background-color: rgba(255, 171, 64, 0.18);
+            color: #d97a26;
+            border: 1px solid rgba(255, 171, 64, 0.3);
+        }
+
+        .status-critico {
+            background-color: rgba(214, 64, 69, 0.12);
+            color: var(--ocasa-danger);
+            border: 1px solid rgba(214, 64, 69, 0.2);
+        }
 
         .row-marked {
-            background-color: rgba(214,64,69,0.06) !important;
+            background-color: rgba(214, 64, 69, 0.06) !important;
             border-left: 3px solid var(--ocasa-danger) !important;
-        }
-
-        /* Notif card clickeable */
-        .notif-card {
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-        .notif-card:hover { opacity: 0.85; }
-
-        /* Chart containers */
-        .chart-card {
-            background: var(--ocasa-surface);
-            border: 1px solid var(--ocasa-border);
-            border-radius: var(--ocasa-radius-lg);
-            padding: 24px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .chart-label {
-            font-size: 10px;
-            font-weight: 900;
-            color: var(--ocasa-text-3);
-            text-transform: uppercase;
-            font-style: italic;
-            letter-spacing: 0.06em;
-            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -233,7 +244,7 @@
         </div>
 
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-6 py-4 bg-ocasa-calypso text-white rounded-lg font-bold shadow-lg active:scale-95 transition-all" style="border-radius: var(--ocasa-radius-xl);">
+            <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-6 py-4 bg-ocasa-calypso text-white rounded-lg font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all" style="border-radius: var(--ocasa-radius-xl);">
                 <div class="flex items-center gap-3">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                     <span class="text-sm tracking-tight uppercase">Menú Principal</span>
@@ -244,7 +255,7 @@
             <div id="menuContent" class="mt-2 space-y-1 bg-ocasa-surface-alt rounded-lg p-2 border border-ocasa-border" style="border-radius: var(--ocasa-radius-lg);">
                 <button onclick="showView('carga'); toggleSidebar();" class="menu-link w-full" style="border-radius: var(--ocasa-radius-md);"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
                 <button onclick="showView('historico'); toggleSidebar();" class="menu-link w-full" style="border-radius: var(--ocasa-radius-md);"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
-                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full" style="border-radius: var(--ocasa-radius-md);"><i data-lucide="pie-chart" class="w-4 h-4"></i> Dashboard</button>
+                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full" style="border-radius: var(--ocasa-radius-md);"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
             </div>
         </nav>
 
@@ -288,12 +299,6 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6ZbP0Zs6AkB4CxinKNsGW6wC11VB0PYGbLOhe7cY_iFVDsfWYfd1c3PFPN3ghfKw0pw/exec';
         let datosFull = [];
         let reclamosAtrasados = [];
-        let activeCharts = [];
-
-        function destroyCharts() {
-            activeCharts.forEach(c => c.destroy());
-            activeCharts = [];
-        }
 
         function toggleSidebar() {
             if (window.innerWidth >= 768) return;
@@ -324,27 +329,23 @@
                 return item.estado === 'Pendiente' && diff >= 24;
             });
 
-            const badge   = document.getElementById('badgeNotif');
+            const badge = document.getElementById('badgeNotif');
             const wrapper = document.getElementById('bellWrapper');
-            const list    = document.getElementById('notifList');
-            const count   = document.getElementById('notifCount');
+            const list = document.getElementById('notifList');
+            const count = document.getElementById('notifCount');
 
             if (reclamosAtrasados.length > 0) {
                 badge.innerText = reclamosAtrasados.length;
                 badge.classList.remove('hidden');
                 wrapper.classList.add('animate-bell');
                 count.innerText = reclamosAtrasados.length;
-
-                // FIX: card completa es clickeable y lleva a historial filtrado por Pendiente
                 list.innerHTML = reclamosAtrasados.map(r => `
-                    <div class="notif-card p-4 bg-ocasa-surface border border-ocasa-border rounded-lg shadow-sm"
-                         style="border-left: 4px solid var(--ocasa-danger); border-radius: var(--ocasa-radius-lg);"
-                         onclick="verReclamo('${r.remito}')">
-                        <p style="font-size:11px; font-weight:900; color:var(--ocasa-text-1); text-transform:uppercase; font-style:italic;">${r.tipo}</p>
-                        <p style="font-size:10px; color:var(--ocasa-text-3); font-weight:700; margin-top:4px;">Guía: ${r.remito}</p>
-                        <div class="flex justify-between items-center" style="margin-top:12px;">
-                            <span style="font-size:9px; color:var(--ocasa-danger); font-weight:700; text-transform:uppercase; font-style:italic;">Vencido</span>
-                            <span style="background:var(--ocasa-navy); color:#fff; font-size:9px; padding:4px 10px; border-radius:var(--ocasa-radius-md); font-weight:900; text-transform:uppercase;">Ver →</span>
+                    <div class="p-4 bg-ocasa-surface border border-ocasa-border rounded-lg shadow-sm" style="border-left: 4px solid var(--ocasa-danger); border-radius: var(--ocasa-radius-lg);">
+                        <p class="text-[11px] font-black text-ocasa-text-1 uppercase italic">${r.tipo}</p>
+                        <p class="text-[10px] text-ocasa-text-3 font-bold mt-1">Guía: ${r.remito}</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-[9px] text-ocasa-danger font-bold uppercase italic">Vencido</span>
+                            <button onclick="verReclamo('${r.remito}')" class="bg-ocasa-navy text-white text-[9px] px-3 py-1.5 rounded font-black uppercase" style="border-radius: var(--ocasa-radius-md);">Ver</button>
                         </div>
                     </div>`).join('');
             } else {
@@ -360,7 +361,6 @@
         }
 
         async function showView(view, filter = null) {
-            destroyCharts();
             const frame = document.getElementById('contentFrame');
             const title = document.getElementById('viewTitle');
             frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
@@ -368,38 +368,34 @@
             if (view === 'home') {
                 frame.classList.add('hero-bg', 'flex', 'items-center', 'justify-center');
                 title.innerText = "Inicio";
-                frame.innerHTML = `<div class="text-center p-10 rounded-lg shadow-2xl border w-full max-w-lg" style="background:rgba(255,255,255,0.88); backdrop-filter:blur(8px); border-radius:var(--ocasa-radius-xl); border-color:var(--ocasa-border);">
-                    <i data-lucide="package" class="w-16 h-16 mx-auto mb-4" style="color:var(--ocasa-calypso);"></i>
-                    <h1 class="text-3xl font-black uppercase italic tracking-tighter" style="color:var(--ocasa-text-1);">OCASA Logística</h1>
+                frame.innerHTML = `<div class="text-center bg-ocasa-surface/80 backdrop-blur-md p-10 rounded-lg shadow-2xl border border-ocasa-surface w-full max-w-lg" style="border-radius: var(--ocasa-radius-xl);">
+                    <i data-lucide="package" class="w-16 h-16 text-ocasa-calypso mx-auto mb-4"></i>
+                    <h1 class="text-3xl font-black text-ocasa-text-1 uppercase italic tracking-tighter">OCASA Logística</h1>
                 </div>`;
             }
 
             else if (view === 'carga') {
                 title.innerText = "Nueva Carga";
                 frame.innerHTML = `
-                    <div class="max-w-xl mx-auto rounded-lg shadow-xl p-8 border" style="background:var(--ocasa-surface); border-color:var(--ocasa-border); border-radius:var(--ocasa-radius-xl);">
+                    <div class="max-w-xl mx-auto bg-ocasa-surface rounded-lg shadow-xl p-8 border border-ocasa-border" style="border-radius: var(--ocasa-radius-xl);">
                         <form id="formCarga" class="space-y-4">
-                            <div class="space-y-1">
-                                <label style="font-size:10px; font-weight:900; color:var(--ocasa-text-3); text-transform:uppercase; font-style:italic; margin-left:8px; display:block;">Tipo de reclamo</label>
-                                <select id="f-tipo" class="w-full p-4 rounded border font-bold" style="background:var(--ocasa-surface-alt); border-color:var(--ocasa-border); color:var(--ocasa-text-1); border-radius:var(--ocasa-radius-md);">
+                            <div class="space-y-1"><label class="text-[10px] font-black text-ocasa-text-3 uppercase italic ml-2">Tipo de reclamo</label>
+                                <select id="f-tipo" class="w-full p-4 rounded bg-ocasa-surface-alt border border-ocasa-border font-bold text-ocasa-text-1" style="border-radius: var(--ocasa-radius-md);">
                                     <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
                                 </select>
                             </div>
-                            <div class="space-y-1">
-                                <label style="font-size:10px; font-weight:900; color:var(--ocasa-text-3); text-transform:uppercase; font-style:italic; margin-left:8px; display:block;">Remito</label>
-                                <input type="text" id="f-remito" required class="w-full p-4 rounded border font-black outline-none" style="background:var(--ocasa-surface-alt); border-color:var(--ocasa-border); color:var(--ocasa-text-1); border-radius:var(--ocasa-radius-md);">
+                            <div class="space-y-1"><label class="text-[10px] font-black text-ocasa-text-3 uppercase italic ml-2">Remito</label>
+                                <input type="text" id="f-remito" required class="w-full p-4 rounded bg-ocasa-surface-alt border border-ocasa-border font-black outline-none text-ocasa-text-1" style="border-radius: var(--ocasa-radius-md);">
                             </div>
-                            <div class="space-y-1">
-                                <label style="font-size:10px; font-weight:900; color:var(--ocasa-text-3); text-transform:uppercase; font-style:italic; margin-left:8px; display:block;">Prioridad</label>
-                                <select id="f-prioridad" class="w-full p-4 rounded border font-bold" style="background:var(--ocasa-surface-alt); border-color:var(--ocasa-border); color:var(--ocasa-text-1); border-radius:var(--ocasa-radius-md);">
+                            <div class="space-y-1"><label class="text-[10px] font-black text-ocasa-text-3 uppercase italic ml-2">Prioridad</label>
+                                <select id="f-prioridad" class="w-full p-4 rounded bg-ocasa-surface-alt border border-ocasa-border font-bold text-ocasa-text-1" style="border-radius: var(--ocasa-radius-md);">
                                     <option>Baja</option><option>Media</option><option>Alta</option>
                                 </select>
                             </div>
-                            <div class="space-y-1">
-                                <label style="font-size:10px; font-weight:900; color:var(--ocasa-text-3); text-transform:uppercase; font-style:italic; margin-left:8px; display:block;">Descripción</label>
-                                <textarea id="f-descripcion" required class="w-full p-4 rounded border font-medium outline-none h-24" style="background:var(--ocasa-surface-alt); border-color:var(--ocasa-border); color:var(--ocasa-text-1); border-radius:var(--ocasa-radius-md);"></textarea>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-ocasa-text-3 uppercase italic ml-2">Descripción</label>
+                                <textarea id="f-descripcion" required class="w-full p-4 rounded bg-ocasa-surface-alt border border-ocasa-border font-medium outline-none h-24 text-ocasa-text-1" style="border-radius: var(--ocasa-radius-md);"></textarea>
                             </div>
-                            <button type="submit" class="w-full py-5 rounded font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest text-white" style="background:var(--ocasa-calypso); border-radius:var(--ocasa-radius-lg);">Sincronizar Reclamo</button>
+                            <button type="submit" class="w-full bg-ocasa-calypso text-white py-5 rounded font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest" style="border-radius: var(--ocasa-radius-lg);">Sincronizar Reclamo</button>
                         </form>
                     </div>`;
 
@@ -425,17 +421,14 @@
                 title.innerText = filter ? `Búsqueda: ${filter}` : "Historial General";
                 frame.innerHTML = `
                     <div class="max-w-6xl mx-auto space-y-4">
-                        <div class="p-4 rounded-lg flex justify-between items-center shadow-sm border" style="background:var(--ocasa-surface); border-color:var(--ocasa-border); border-radius:var(--ocasa-radius-lg);">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar en todos los campos..."
-                                class="p-3 rounded border text-sm w-64 outline-none"
-                                style="background:var(--ocasa-surface-alt); border-color:var(--ocasa-border); color:var(--ocasa-text-1); border-radius:var(--ocasa-radius-md);"
-                                value="${filter || ''}">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black px-4 py-2 rounded border uppercase italic" style="color:var(--ocasa-danger); background:rgba(214,64,69,0.1); border-color:rgba(214,64,69,0.2); border-radius:var(--ocasa-radius-md);">Limpiar</button>` : ''}
+                        <div class="bg-ocasa-surface p-4 rounded-lg flex justify-between items-center shadow-sm border border-ocasa-border" style="border-radius: var(--ocasa-radius-lg);">
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar en todos los campos..." class="p-3 bg-ocasa-surface-alt border border-ocasa-border rounded text-sm w-64 outline-none text-ocasa-text-1" style="border-radius: var(--ocasa-radius-md);" value="${filter || ''}">
+                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-ocasa-danger bg-ocasa-danger/10 px-4 py-2 rounded border border-ocasa-danger/20 uppercase italic" style="border-radius: var(--ocasa-radius-md);">Limpiar</button>` : ''}
                         </div>
-                        <div class="rounded-lg border overflow-hidden shadow-sm" style="background:var(--ocasa-surface); border-color:var(--ocasa-border); border-radius:var(--ocasa-radius-lg);">
+                        <div class="bg-ocasa-surface rounded-lg border border-ocasa-border overflow-hidden shadow-sm" style="border-radius: var(--ocasa-radius-lg);">
                             <div class="overflow-x-auto custom-scrollbar">
                                 <table class="w-full text-left min-w-[1000px]">
-                                    <thead style="background:var(--ocasa-navy); color:#fff; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.05em;">
+                                    <thead class="bg-ocasa-navy text-[10px] font-black text-white uppercase" style="letter-spacing: 0.05em;">
                                         <tr>
                                             <th class="p-4">Fecha</th>
                                             <th class="p-4">Remito</th>
@@ -446,16 +439,16 @@
                                             <th class="p-4 text-right">Estado</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tablaBody"></tbody>
+                                    <tbody id="tablaBody" class="text-sm"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>`;
 
                 let data = datosFull;
-                if (filter === 'Pendiente') {
+                if(filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
-                } else if (filter) {
+                } else if(filter) {
                     const term = filter.toLowerCase();
                     data = datosFull.filter(d =>
                         Object.values(d).some(val => val.toString().toLowerCase().includes(term))
@@ -463,180 +456,55 @@
                 }
                 renderizarTabla(data);
             }
-else if (view === 'stats') {
-                title.innerText = "Dashboard";
 
-                const total      = datosFull.length;
+            else if (view === 'stats') {
+                title.innerText = "Estadísticas";
+                const total = datosFull.length;
                 const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
-                const resueltos  = total - pendientes;
-
-                const prioCount = { Alta: 0, Media: 0, Baja: 0 };
-                const tipoCount = {};
-                const estadoCount = {};
-
-                datosFull.forEach(d => {
-                    const p = d.prioridad || 'Baja';
-                    if (prioCount[p] !== undefined) prioCount[p]++;
-                    const t = d.tipo || 'Sin tipo';
-                    tipoCount[t] = (tipoCount[t] || 0) + 1;
-                    const e = d.estado || 'Sin estado';
-                    estadoCount[e] = (estadoCount[e] || 0) + 1;
-                });
-
                 frame.innerHTML = `
-                <div class="max-w-5xl mx-auto space-y-6">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div onclick="showView('historico')" class="chart-card cursor-pointer transition-opacity hover:opacity-80">
-                            <p class="chart-label">Total</p>
-                            <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${total}</p>
+                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div onclick="showView('historico')" class="bg-ocasa-surface p-8 rounded-lg border border-ocasa-border shadow-sm cursor-pointer hover:bg-ocasa-surface-alt transition-all" style="border-radius: var(--ocasa-radius-lg);">
+                            <p class="text-[10px] font-black text-ocasa-text-3 uppercase italic">Total Histórico</p>
+                            <p class="text-6xl font-black text-ocasa-text-1 tracking-tighter">${total}</p>
                         </div>
-                        <div onclick="showView('historico','Pendiente')" class="chart-card cursor-pointer transition-opacity hover:opacity-80" style="border-left: 4px solid var(--ocasa-warning);">
-                            <p class="chart-label" style="color:var(--ocasa-warning);">Pendientes ›</p>
-                            <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${pendientes}</p>
+                        <div onclick="showView('historico', 'Pendiente')" class="bg-ocasa-surface p-8 rounded-lg border-l-4 shadow-sm cursor-pointer hover:bg-ocasa-surface-alt transition-all" style="border-radius: var(--ocasa-radius-lg); border-left-color: var(--ocasa-warning);">
+                            <p class="text-[10px] font-black text-ocasa-warning uppercase italic flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-4 h-4"></i></p>
+                            <p class="text-6xl font-black text-ocasa-text-1 tracking-tighter">${pendientes}</p>
                         </div>
-                        <div onclick="showView('historico','Finalizado')" class="chart-card cursor-pointer transition-opacity hover:opacity-80" style="border-left: 4px solid var(--ocasa-success);">
-                            <p class="chart-label" style="color:#5a7d2f;">Resueltos</p>
-                            <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${resueltos}</p>
-                        </div>
-                        <div onclick="showView('historico','Alta')" class="chart-card cursor-pointer transition-opacity hover:opacity-80" style="border-left: 4px solid var(--ocasa-danger);">
-                            <p class="chart-label" style="color:var(--ocasa-danger);">Alta Prioridad</p>
-                            <p style="font-size:52px; font-weight:900; color:var(--ocasa-text-1); line-height:1;">${prioCount.Alta}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="chart-card"><p class="chart-label">Estado de Reclamos</p><div style="max-height:220px; display:flex; justify-content:center;"><canvas id="chartEstado"></canvas></div></div>
-                        <div class="chart-card"><p class="chart-label">Prioridad</p><div style="max-height:220px; display:flex; justify-content:center;"><canvas id="chartPrio"></canvas></div></div>
-                    </div>
-
-                    <div class="chart-card">
-                        <p class="chart-label">Reclamos por Tipo</p>
-                        <canvas id="chartTipo" style="max-height:220px;"></canvas>
-                    </div>
-                </div>`;
-
-                setTimeout(() => {
-                    const chartFont = { family: 'Montserrat', weight: '700' };
-                    
-                    // Función para filtrar al hacer clic
-                    const handleChartClick = (elements, chart) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const label = chart.data.labels[index];
-                            showView('historico', label);
-                        }
-                    };
-
-                    const hoverConfig = (event, chartElement) => {
-                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
-                    };
-
-                    // Donut: estados
-                    const ctxE = document.getElementById('chartEstado');
-                    if (ctxE) {
-                        activeCharts.push(new Chart(ctxE, {
-                            type: 'doughnut',
-                            data: {
-                                labels: Object.keys(estadoCount),
-                                datasets: [{
-                                    data: Object.values(estadoCount),
-                                    backgroundColor: ['#FFAB40','#8FBF4C','#0099A8','#D64045','#7A959E'],
-                                    borderWidth: 0
-                                }]
-                            },
-                            options: {
-                                cutout: '65%',
-                                onClick: (e, el, chart) => handleChartClick(el, chart),
-                                onHover: hoverConfig,
-                                plugins: { legend: { position: 'bottom', labels: { font: chartFont } } }
-                            }
-                        }));
-                    }
-
-                    // Donut: prioridades
-                    const ctxP = document.getElementById('chartPrio');
-                    if (ctxP) {
-                        activeCharts.push(new Chart(ctxP, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['Alta','Media','Baja'],
-                                datasets: [{
-                                    data: [prioCount.Alta, prioCount.Media, prioCount.Baja],
-                                    backgroundColor: ['#D64045','#FFAB40','#8FBF4C'],
-                                    borderWidth: 0
-                                }]
-                            },
-                            options: {
-                                cutout: '65%',
-                                onClick: (e, el, chart) => handleChartClick(el, chart),
-                                onHover: hoverConfig,
-                                plugins: { legend: { position: 'bottom', labels: { font: chartFont } } }
-                            }
-                        }));
-                    }
-
-                    // Barra horizontal: por tipo (CORREGIDO ESPAÑOL)
-                    const ctxT = document.getElementById('chartTipo');
-                    if (ctxT) {
-                        const tipos = Object.keys(tipoCount);
-                        const palette = ['#0099A8','#002639','#8FBF4C','#FFAB40','#D64045','#7A959E'];
-                        activeCharts.push(new Chart(ctxT, {
-                            type: 'bar',
-                            data: {
-                                labels: tipos,
-                                datasets: [{
-                                    label: 'Cantidad', // <--- Texto en español
-                                    data: Object.values(tipoCount),
-                                    backgroundColor: tipos.map((_, i) => palette[i % palette.length]),
-                                    borderRadius: 4
-                                }]
-                            },
-                            options: {
-                                indexAxis: 'y',
-                                onClick: (e, el, chart) => handleChartClick(el, chart),
-                                onHover: hoverConfig,
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    x: { ticks: { font: chartFont }, beginAtZero: true },
-                                    y: { ticks: { font: chartFont } }
-                                }
-                            }
-                        }));
-                    }
-                }, 100);
+                    </div>`;
             }
+            lucide.createIcons();
+        }
 
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
-            if (!tbody) return;
+            if(!tbody) return;
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="padding:80px; text-align:center; color:var(--ocasa-text-3); font-weight:700; font-style:italic;">No existen registros</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-20 text-center text-ocasa-text-3 font-bold italic">No existen registros</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = data.map(item => {
-                const f    = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
+                const f = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
                 const prio = (item.prioridad || 'Baja').toUpperCase();
+                const estado = item.estado.toUpperCase();
 
                 let statusClass = 'status-importante';
-                if (item.estado.toUpperCase() === 'PENDIENTE') statusClass = 'status-atencion';
+                if (estado === 'PENDIENTE') statusClass = 'status-atencion';
 
-                // FIX: todos los textos usan style inline para garantizar visibilidad
                 return `
-                <tr style="border-top: 1px solid var(--ocasa-border); background:var(--ocasa-surface);"
-                    onmouseover="this.style.background='var(--ocasa-surface-alt)'"
-                    onmouseout="this.style.background='var(--ocasa-surface)'">
-                    <td style="padding:16px; font-size:10px; font-weight:700; color:var(--ocasa-text-3); white-space:nowrap;">${f}</td>
-                    <td style="padding:16px; font-weight:900; color:var(--ocasa-text-1);">${item.remito}</td>
-                    <td style="padding:16px; font-weight:700; font-style:italic; font-size:14px; color:var(--ocasa-text-2);">${item.tipo}</td>
-                    <td style="padding:16px;">
-                        <span style="font-weight:700; font-size:10px; text-transform:uppercase; color:${prio === 'ALTA' ? 'var(--ocasa-danger)' : 'var(--ocasa-text-3)'};">${prio}</span>
+                <tr class="border-t border-ocasa-border hover:bg-ocasa-surface-alt/50 transition-colors">
+                    <td class="p-4 text-[10px] font-bold text-ocasa-text-3 whitespace-nowrap">${f}</td>
+                    <td class="p-4 font-black text-ocasa-text-1">${item.remito}</td>
+                    <td class="p-4 text-ocasa-text-2 font-bold italic text-sm">${item.tipo}</td>
+                    <td class="p-4">
+                        <span class="font-bold ${prio === 'ALTA' ? 'text-ocasa-danger' : 'text-ocasa-text-3'} text-[10px] uppercase">${prio}</span>
                     </td>
-                    <td style="padding:16px; font-size:12px; color:var(--ocasa-text-2); max-width:250px; word-break:break-word;">${item.descripcion || '-'}</td>
-                    <td style="padding:16px; font-size:11px; font-style:italic; color:var(--ocasa-text-3); max-width:250px; word-break:break-word;">${item.resolucion || '-'}</td>
-                    <td style="padding:16px; text-align:right;">
-                        <span class="${statusClass}" style="padding:4px 10px; border-radius:var(--ocasa-radius-sm); font-weight:900; text-transform:uppercase; font-size:10px; letter-spacing:0.05em; white-space:nowrap;">
+                    <td class="p-4 text-xs text-ocasa-text-2 max-w-[250px] break-words">${item.descripcion || '-'}</td>
+                    <td class="p-4 text-[11px] italic text-ocasa-text-3 max-w-[250px] break-words">${item.resolucion || '-'}</td>
+                    <td class="p-4 text-right">
+                        <span class="px-3 py-1.5 ${statusClass} rounded font-black uppercase text-[10px]" style="border-radius: var(--ocasa-radius-sm); letter-spacing: 0.05em;">
                             ${item.estado}
                         </span>
                     </td>
@@ -647,7 +515,9 @@ else if (view === 'stats') {
         function filtrarTabla() {
             const term = document.getElementById('searchTable').value.toLowerCase();
             const filtrados = datosFull.filter(d =>
-                Object.values(d).some(val => val.toString().toLowerCase().includes(term))
+                Object.values(d).some(val =>
+                    val.toString().toLowerCase().includes(term)
+                )
             );
             renderizarTabla(filtrados);
         }
@@ -665,4 +535,3 @@ else if (view === 'stats') {
     </script>
 </body>
 </html>
-
