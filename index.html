@@ -24,7 +24,7 @@
         }
         .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
 
-        /* Panel Notificaciones */
+        /* Dropdown Notificaciones */
         #notifPanel { 
             display: none; 
             position: absolute; 
@@ -68,12 +68,6 @@
             background-size: cover; background-position: center;
         }
         #overlay { display: none; }
-
-        /* Scrollbar Personalizada */
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--ocasa-cyan); }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
@@ -139,7 +133,7 @@
     </main>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6ZbP0Zs6AkB4CxinKNsGW6wC11VB0PYGbLOhe7cY_iFVDsfWYfd1c3PFPN3ghfKw0pw/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
         let datosFull = [];
         let reclamosAtrasados = [];
 
@@ -158,6 +152,7 @@
             document.getElementById('notifPanel').classList.toggle('show');
         }
 
+        // Click fuera para cerrar notificaciones
         window.addEventListener('click', (e) => {
             if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
                 document.getElementById('notifPanel').classList.remove('show');
@@ -230,14 +225,6 @@
                             <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Remito</label>
                                 <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none">
                             </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Prioridad</label>
-                                <select id="f-prioridad" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                    <option>Baja</option><option>Media</option><option>Alta</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Descripción</label>
-                                <textarea id="f-descripcion" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-medium outline-none h-24"></textarea>
-                            </div>
                             <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
                         </form>
                     </div>`;
@@ -247,11 +234,9 @@
                     const btn = e.target.querySelector('button');
                     btn.disabled = true; btn.innerText = "Enviando...";
                     const payload = {
-                        fecha: new Date().toISOString(),
+                        fecha: new Date().toLocaleString(),
                         tipo: document.getElementById('f-tipo').value,
                         remito: document.getElementById('f-remito').value,
-                        prioridad: document.getElementById('f-prioridad').value,
-                        descripcion: document.getElementById('f-descripcion').value,
                         estado: "Pendiente", usuario: "Gonzalo Dorrego"
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
@@ -261,41 +246,29 @@
             }
 
             else if (view === 'historico') {
-                title.innerText = filter ? `Búsqueda: ${filter}` : "Historial General";
+                title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
                 frame.innerHTML = `
                     <div class="max-w-6xl mx-auto space-y-4">
                         <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar en todos los campos..." class="p-3 bg-slate-50 border rounded-xl text-sm w-64 outline-none" value="${filter || ''}">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Limpiar</button>` : ''}
+                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
+                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
                         </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
-                            <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full text-left min-w-[1000px]">
-                                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                        <tr>
-                                            <th class="p-5">Fecha</th>
-                                            <th class="p-5">Remito</th>
-                                            <th class="p-5">Tipo</th>
-                                            <th class="p-5">Prioridad</th>
-                                            <th class="p-5">Descripción</th>
-                                            <th class="p-5">Resolución</th>
-                                            <th class="p-5 text-right">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaBody" class="text-sm"></tbody>
-                                </table>
-                            </div>
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
+                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Estado</th></tr>
+                                </thead>
+                                <tbody id="tablaBody" class="text-sm"></tbody>
+                            </table>
                         </div>
                     </div>`;
                 
+                // ARREGLO FILTRO ESTADÍSTICA: Si el filtro es "Pendiente", filtramos por la columna estado
                 let data = datosFull;
                 if(filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
                 } else if(filter) {
-                    const term = filter.toLowerCase();
-                    data = datosFull.filter(d => 
-                        Object.values(d).some(val => val.toString().toLowerCase().includes(term))
-                    );
+                    data = datosFull.filter(d => d.remito == filter);
                 }
                 renderizarTabla(data);
             }
@@ -306,7 +279,7 @@
                 const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
                 frame.innerHTML = `
                     <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onclick="showView('historico')" class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm cursor-pointer hover:bg-slate-50 transition-all">
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
                             <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
                             <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
                         </div>
@@ -322,43 +295,19 @@
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if(!tbody) return;
-
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-20 text-center text-slate-400 font-bold italic">No existen registros</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = data.map(item => {
-                const f = item.fecha ? item.fecha.split('T')[0].split('-').reverse().join('/') : '-';
-                const prio = (item.prioridad || 'Baja').toUpperCase();
-                
-                return `
-                <tr class="border-t border-slate-300 hover:bg-slate-50/50 transition-colors">
-                    <td class="p-5 text-[10px] font-bold text-slate-400 whitespace-nowrap">${f}</td>
+            tbody.innerHTML = data.map(item => `
+                <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
                     <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
                     <td class="p-5">
-                        <span class="font-bold ${prio === 'ALTA' ? 'text-red-500' : 'text-slate-400'} text-[10px] uppercase">${prio}</span>
+                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
                     </td>
-                    <td class="p-5 text-xs text-slate-500 max-w-[250px] break-words">${item.descripcion || '-'}</td>
-                    <td class="p-5 text-[11px] italic text-slate-400 max-w-[250px] break-words">${item.resolucion || '-'}</td>
-                    <td class="p-5 text-right">
-                        <span class="px-3 py-1.5 ${item.estado.toUpperCase() === 'PENDIENTE' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">
-                            ${item.estado}
-                        </span>
-                    </td>
-                </tr>`;
-            }).join('');
+                </tr>`).join('');
         }
 
         function filtrarTabla() {
             const term = document.getElementById('searchTable').value.toLowerCase();
-            // Filtra en CUALQUIER campo del objeto
-            const filtrados = datosFull.filter(d => 
-                Object.values(d).some(val => 
-                    val.toString().toLowerCase().includes(term)
-                )
-            );
+            const filtrados = datosFull.filter(d => d.remito.toLowerCase().includes(term));
             renderizarTabla(filtrados);
         }
 
@@ -369,7 +318,7 @@
                 showView('home');
                 lucide.createIcons();
                 setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error cargando datos"); }
+            } catch (e) { console.error("Error"); }
         }
         init();
     </script>
