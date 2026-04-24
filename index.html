@@ -4,323 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OCASA - Gestión de Reclamos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --ocasa-cyan: #0097A7; }
-        body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; color: #1e293b; }
-        .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
-        
-        /* Animación Campana */
+        :root {
+            --ocasa-calypso: #0099A8;
+            --ocasa-calypso-dark: #056572;
+            --ocasa-calypso-light: #E0F4F5;
+            --ocasa-navy: #002639;
+            --ocasa-success: #8FBF4C;
+            --ocasa-warning: #FFAB40;
+            --ocasa-danger: #D64045;
+            --ocasa-bg: #F5F5F5;
+            --ocasa-surface: #FFFFFF;
+            --ocasa-surface-alt: #EEEDEB;
+            --ocasa-border: #D6E2E5;
+            --ocasa-text-1: #1E2D32;
+            --ocasa-text-2: #4A6670;
+            --ocasa-text-3: #7A959E;
+            --ocasa-font: 'Montserrat', sans-serif;
+            --ocasa-radius-sm: 3px;
+            --ocasa-radius-md: 5px;
+            --ocasa-radius-lg: 6px;
+            --ocasa-radius-xl: 8px;
+        }
+
+        .bg-ocasa-surface { background-color: var(--ocasa-surface) !important; }
+        .bg-ocasa-surface-alt { background-color: var(--ocasa-surface-alt) !important; }
+        .bg-ocasa-calypso { background-color: var(--ocasa-calypso) !important; }
+        .text-ocasa-text-1 { color: var(--ocasa-text-1) !important; }
+        .text-ocasa-text-3 { color: var(--ocasa-text-3) !important; }
+        .border-ocasa-border { border-color: var(--ocasa-border) !important; }
+
+        body { font-family: var(--ocasa-font); background-color: var(--ocasa-bg); color: var(--ocasa-text-1); padding-top: 6px; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 6px; background-color: var(--ocasa-calypso); z-index: 300; }
+
         @keyframes bell-swing {
-            0% { transform: rotate(0); }
+            0%, 100% { transform: rotate(0); }
             15% { transform: rotate(15deg); }
             30% { transform: rotate(-15deg); }
-            45% { transform: rotate(10deg); }
-            60% { transform: rotate(-10deg); }
-            75% { transform: rotate(0); }
-            100% { transform: rotate(0); }
         }
-        .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
+        .animate-bell svg { animation: bell-swing 2s infinite; color: var(--ocasa-danger) !important; }
 
-        /* Dropdown Notificaciones */
-        #notifPanel { 
-            display: none; 
-            position: absolute; 
-            top: 65px; 
-            right: 0; 
-            width: 320px; 
-            max-height: 480px; 
-            background: white; 
-            border-radius: 24px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            z-index: 200;
-            border: 1px solid #f1f5f9;
-        }
-        #notifPanel.show { display: block; animation: slideIn 0.2s ease-out; }
+        #notifPanel { display: none; position: absolute; top: 65px; right: 0; width: 320px; max-height: 480px; background: var(--ocasa-surface); border-radius: var(--ocasa-radius-xl); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); z-index: 200; border: 1px solid var(--ocasa-border); }
+        #notifPanel.show { display: block; }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .menu-link { display: flex; align-items: center; gap: 16px; padding: 16px 24px; font-size: 11px; font-weight: 700; color: var(--ocasa-text-3); text-transform: uppercase; transition: all 0.2s; }
+        .menu-link:hover { background-color: var(--ocasa-surface-alt); color: var(--ocasa-calypso); }
 
-        #sidebar { transition: transform 0.3s ease; z-index: 100; }
-        @media (max-width: 768px) {
-            #sidebar { transform: translateX(-100%); position: fixed; height: 100vh; }
-            #sidebar.open { transform: translateX(0); }
-            #overlay.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
-        }
-
+        .chart-card { background: var(--ocasa-surface); border: 1px solid var(--ocasa-border); border-radius: var(--ocasa-radius-lg); padding: 24px; }
+        .chart-label { font-size: 10px; font-weight: 900; color: var(--ocasa-text-3); text-transform: uppercase; font-style: italic; margin-bottom: 16px; }
+        
+        #sidebar { transition: transform 0.3s ease; }
+        @media (max-width: 768px) { #sidebar { transform: translateX(-100%); position: fixed; height: 100vh; z-index: 100; } #sidebar.open { transform: translateX(0); } }
         #menuContent { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
         #menuContent.open { max-height: 500px; }
-        
-        .menu-link {
-            display: flex; align-items: center; gap: 12px; padding: 14px 20px;
-            border-radius: 16px; font-size: 13px; font-weight: 700; color: #64748b;
-            transition: all 0.2s; text-transform: uppercase;
-        }
-        .menu-link:hover { background-color: #f1f5f9; color: var(--ocasa-cyan); }
-
-        .hero-bg {
-            background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), 
-                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop');
-            background-size: cover; background-position: center;
-        }
-        #overlay { display: none; }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 hidden z-[90]"></div>
 
-    <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
-        <div class="p-8 border-b border-slate-100 flex flex-col items-center">
-            <img src="logo_ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home')">
-            <span class="text-[10px] text-slate-400 font-black tracking-widest uppercase italic">Logística Global</span>
+    <aside id="sidebar" class="w-72 bg-ocasa-surface border-r border-ocasa-border flex flex-col shrink-0">
+        <div class="p-8 border-b border-ocasa-border flex flex-col items-center">
+            <img src="https://www.ocasa.com/wp-content/uploads/2021/04/logo-ocasa.png" alt="OCASA" class="max-w-[140px] mb-2 cursor-pointer" onclick="showView('home')">
+            <span class="text-[10px] text-ocasa-text-3 font-black tracking-widest uppercase italic">Logística Global</span>
         </div>
-        
+
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-5 py-4 bg-ocasa-cyan text-white rounded-2xl font-bold shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+            <button onclick="toggleMenu()" class="w-full flex items-center justify-between px-6 py-4 bg-ocasa-calypso text-white rounded-lg font-bold shadow-lg">
                 <div class="flex items-center gap-3">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                     <span class="text-sm tracking-tight uppercase">Menú Principal</span>
                 </div>
-                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="menuChevron"></i>
+                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" id="menuChevron"></i>
             </button>
-            
-            <div id="menuContent" class="mt-2 space-y-1 bg-slate-50 rounded-3xl p-2 border border-slate-100">
+            <div id="menuContent" class="mt-2 space-y-1 bg-ocasa-surface-alt rounded-lg p-2 border border-ocasa-border">
                 <button onclick="showView('carga'); toggleSidebar();" class="menu-link w-full"><i data-lucide="file-plus" class="w-4 h-4"></i> Cargar Reclamo</button>
                 <button onclick="showView('historico'); toggleSidebar();" class="menu-link w-full"><i data-lucide="history" class="w-4 h-4"></i> Histórico</button>
-                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full"><i data-lucide="pie-chart" class="w-4 h-4"></i> Estadísticas</button>
+                <button onclick="showView('stats'); toggleSidebar();" class="menu-link w-full"><i data-lucide="pie-chart" class="w-4 h-4"></i> Dashboard</button>
             </div>
         </nav>
 
-        <div class="p-6 border-t border-slate-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-ocasa-cyan border border-slate-200 text-xs">GD</div>
+        <div class="p-6 border-t border-ocasa-border flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-ocasa-surface-alt flex items-center justify-center font-bold text-ocasa-calypso border border-ocasa-border text-xs">GD</div>
             <div class="flex flex-col">
                 <span class="text-xs font-bold leading-tight">Gonzalo Dorrego</span>
-                <span class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Admin Sistema</span>
+                <span class="text-[9px] text-ocasa-text-3 uppercase font-bold">Admin Sistema</span>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-white relative">
-        <header class="h-16 md:h-20 bg-white border-b border-slate-100 px-6 md:px-10 flex items-center justify-between shadow-sm">
+    <main class="flex-1 flex flex-col min-w-0 bg-ocasa-surface relative">
+        <header class="h-16 md:h-20 bg-ocasa-surface border-b border-ocasa-border px-6 md:px-10 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600"><i data-lucide="menu"></i></button>
-                <span class="hidden md:block w-1.5 h-6 bg-ocasa-cyan rounded-full"></span>
-                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-slate-800 uppercase italic tracking-tighter">Panel de Gestión</h2>
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-ocasa-text-2"><i data-lucide="menu"></i></button>
+                <h2 id="viewTitle" class="text-sm md:text-lg font-black text-ocasa-text-1 uppercase italic tracking-tighter">Panel de Gestión</h2>
             </div>
-            
             <div class="relative">
-                <button onclick="toggleNotificaciones()" id="btnBell" class="p-2 rounded-full hover:bg-slate-100 transition-all relative">
-                    <div id="bellWrapper"><i data-lucide="bell" class="w-6 h-6 text-slate-400"></i></div>
-                    <span id="badgeNotif" class="hidden absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                <button onclick="toggleNotificaciones()" id="btnBell" class="p-2 rounded-full hover:bg-ocasa-surface-alt relative">
+                    <div id="bellWrapper"><i data-lucide="bell" class="w-6 h-6 text-ocasa-text-3"></i></div>
+                    <span id="badgeNotif" class="hidden absolute top-0 right-0 bg-ocasa-danger text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-ocasa-surface">0</span>
                 </button>
-
                 <div id="notifPanel">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center rounded-t-[24px]">
-                        <span class="text-[10px] font-black uppercase text-slate-400 italic">Alertas SLA (+24hs)</span>
-                        <span id="notifCount" class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
+                    <div class="p-4 border-b border-ocasa-border bg-ocasa-surface-alt flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase text-ocasa-text-3 italic">Alertas SLA (+24hs)</span>
+                        <span id="notifCount" class="bg-ocasa-danger text-white text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
                     </div>
                     <div id="notifList" class="overflow-y-auto max-h-[350px] p-2 space-y-2"></div>
                 </div>
             </div>
         </header>
-
         <div id="contentFrame" class="flex-1 overflow-y-auto p-4 md:p-10"></div>
     </main>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6ZbP0Zs6AkB4CxinKNsGW6wC11VB0PYGbLOhe7cY_iFVDsfWYfd1c3PFPN3ghfKw0pw/exec';
         let datosFull = [];
-        let reclamosAtrasados = [];
+        let activeCharts = [];
 
         function toggleSidebar() {
-            if (window.innerWidth >= 768) return;
             document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('show');
+            document.getElementById('overlay').classList.toggle('hidden');
         }
-
         function toggleMenu() {
             document.getElementById('menuContent').classList.toggle('open');
             document.getElementById('menuChevron').classList.toggle('rotate-180');
         }
-
-        function toggleNotificaciones() {
-            document.getElementById('notifPanel').classList.toggle('show');
-        }
-
-        // Click fuera para cerrar notificaciones
-        window.addEventListener('click', (e) => {
-            if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
-                document.getElementById('notifPanel').classList.remove('show');
-            }
-        });
-
-        function procesarAlertas() {
-            const ahora = new Date();
-            reclamosAtrasados = datosFull.filter(item => {
-                const fechaIngreso = new Date(item.fecha);
-                const diff = (ahora - fechaIngreso) / (1000 * 60 * 60);
-                return item.estado === 'Pendiente' && diff >= 24;
-            });
-
-            const badge = document.getElementById('badgeNotif');
-            const wrapper = document.getElementById('bellWrapper');
-            const list = document.getElementById('notifList');
-            const count = document.getElementById('notifCount');
-            
-            if (reclamosAtrasados.length > 0) {
-                badge.innerText = reclamosAtrasados.length;
-                badge.classList.remove('hidden');
-                wrapper.classList.add('animate-bell');
-                count.innerText = reclamosAtrasados.length;
-                list.innerHTML = reclamosAtrasados.map(r => `
-                    <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm border-l-4 border-l-red-500">
-                        <p class="text-[11px] font-black text-slate-800 uppercase italic">${r.tipo}</p>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1">Guía: ${r.remito}</p>
-                        <div class="flex justify-between items-center mt-3">
-                            <span class="text-[9px] text-red-500 font-bold uppercase italic">Vencido</span>
-                            <button onclick="verReclamo('${r.remito}')" class="bg-slate-900 text-white text-[9px] px-3 py-1.5 rounded-lg font-black uppercase">Ver</button>
-                        </div>
-                    </div>`).join('');
-            } else {
-                badge.classList.add('hidden');
-                wrapper.classList.remove('animate-bell');
-                list.innerHTML = `<p class="p-8 text-center text-slate-400 text-xs font-bold italic">Todo al día</p>`;
-            }
-        }
-
-        function verReclamo(remito) {
-            document.getElementById('notifPanel').classList.remove('show');
-            showView('historico', remito);
-        }
-
-        async function showView(view, filter = null) {
-            const frame = document.getElementById('contentFrame');
-            const title = document.getElementById('viewTitle');
-            frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
-            
-            if (view === 'home') {
-                frame.classList.add('hero-bg', 'flex', 'items-center', 'justify-center');
-                title.innerText = "Inicio";
-                frame.innerHTML = `<div class="text-center bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-2xl border border-white w-full max-w-lg">
-                    <i data-lucide="package" class="w-16 h-16 text-ocasa-cyan mx-auto mb-4"></i>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase italic tracking-tighter">OCASA Logística</h1>
-                </div>`;
-            } 
-            
-            else if (view === 'carga') {
-                title.innerText = "Nueva Carga";
-                frame.innerHTML = `
-                    <div class="max-w-xl mx-auto bg-white rounded-[2.5rem] shadow-xl p-8 border border-slate-100">
-                        <form id="formCarga" class="space-y-4">
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Tipo de reclamo</label>
-                                <select id="f-tipo" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-bold">
-                                    <option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase italic ml-2">Remito</label>
-                                <input type="text" id="f-remito" required class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 font-black outline-none">
-                            </div>
-                            <button type="submit" class="w-full bg-ocasa-cyan text-white py-5 rounded-2xl font-black uppercase text-sm shadow-xl active:scale-95 transition-all mt-4 tracking-widest">Sincronizar Reclamo</button>
-                        </form>
-                    </div>`;
-                
-                document.getElementById('formCarga').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const btn = e.target.querySelector('button');
-                    btn.disabled = true; btn.innerText = "Enviando...";
-                    const payload = {
-                        fecha: new Date().toLocaleString(),
-                        tipo: document.getElementById('f-tipo').value,
-                        remito: document.getElementById('f-remito').value,
-                        estado: "Pendiente", usuario: "Gonzalo Dorrego"
-                    };
-                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Cargado!"); 
-                    init();
-                });
-            }
-
-            else if (view === 'historico') {
-                title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
-                frame.innerHTML = `
-                    <div class="max-w-6xl mx-auto space-y-4">
-                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
-                        </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Estado</th></tr>
-                                </thead>
-                                <tbody id="tablaBody" class="text-sm"></tbody>
-                            </table>
-                        </div>
-                    </div>`;
-                
-                // ARREGLO FILTRO ESTADÍSTICA: Si el filtro es "Pendiente", filtramos por la columna estado
-                let data = datosFull;
-                if(filter === 'Pendiente') {
-                    data = datosFull.filter(d => d.estado === 'Pendiente');
-                } else if(filter) {
-                    data = datosFull.filter(d => d.remito == filter);
-                }
-                renderizarTabla(data);
-            }
-
-            else if (view === 'stats') {
-                title.innerText = "Estadísticas";
-                const total = datosFull.length;
-                const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
-                frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
-                            <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
-                        </div>
-                        <div onclick="showView('historico', 'Pendiente')" class="bg-white p-8 rounded-[2.5rem] border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-all">
-                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-4 h-4"></i></p>
-                            <p class="text-6xl font-black tracking-tighter">${pendientes}</p>
-                        </div>
-                    </div>`;
-            }
-            lucide.createIcons();
-        }
-
-        function renderizarTabla(data) {
-            const tbody = document.getElementById('tablaBody');
-            if(!tbody) return;
-            tbody.innerHTML = data.map(item => `
-                <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td class="p-5 font-black text-slate-900">${item.remito}</td>
-                    <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
-                    <td class="p-5">
-                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function filtrarTabla() {
-            const term = document.getElementById('searchTable').value.toLowerCase();
-            const filtrados = datosFull.filter(d => d.remito.toLowerCase().includes(term));
-            renderizarTabla(filtrados);
-        }
+        function toggleNotificaciones() { document.getElementById('notifPanel').classList.toggle('show'); }
 
         async function init() {
             try {
                 const res = await fetch(WEB_APP_URL);
                 datosFull = await res.json();
+                procesarAlertas();
                 showView('home');
                 lucide.createIcons();
-                setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Error cargando datos", e); }
         }
-        init();
+
+        function procesarAlertas() {
+            const ahora = new Date();
+            const atrasados = datosFull.filter(item => {
+                const diff = (ahora - new Date(item.fecha)) / (1000 * 60 * 60);
+                return item.estado === 'Pendiente' && diff >= 24;
+            });
+            const badge = document.getElementById('badgeNotif');
+            const list = document.getElementById('notifList');
+            if (atrasados.length > 0) {
+                badge.innerText = atrasados.length;
+                badge.classList.remove('hidden');
+                document.getElementById('bellWrapper').classList.add('animate-bell');
+                list.innerHTML = atrasados.map(r => `
+                    <div class="p-3 bg-white border-l-4 border-ocasa-danger shadow-sm rounded cursor-pointer" onclick="verReclamo('${r.remito}')">
+                        <p class="text-[10px] font-black uppercase">${r.tipo}</p>
+                        <p class="text-[9px] text-gray-500 font-bold">Guía: ${r.remito}</p>
+                    </div>`).join('');
+            }
+        }
+
+        function verReclamo(remito) {
+            toggleNotificaciones();
+            showView('historico', remito);
+        }
+
+        function renderizarTabla(data) {
+            const tbody = document.getElementById('tablaBody');
+            if (!tbody) return;
+            tbody.innerHTML = data.map(r => `
+                <tr class="border-b border-ocasa-border text-xs hover:bg-gray-50">
+                    <td class="p-4 font-bold">${new Date(r.fecha).toLocaleDateString()}</td>
+                    <td class="p-4 font-black text-ocasa-calypso">${r.remito}</td>
+                    <td class="p-4 font-bold">${r.tipo}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-black uppercase ${r.prioridad === 'Alta' ? 'bg-red-100 text-red-600' : 'bg-gray-100'}">${r.prioridad}</span></td>
+                    <td class="p-4 text-ocasa-text-2">${r.descripcion}</td>
+                    <td class="p-4 italic text-gray-400">${r.resolucion || '-'}</td>
+                    <td class="p-4 text-right font-black uppercase text-[10px] ${r.estado === 'Pendiente' ? 'text-ocasa-warning' : 'text-ocasa-success'}">${r.estado}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filtrarTabla() {
+            const term = document.getElementById('searchTable').value.toLowerCase();
+            const filtered = datosFull.filter(d => Object.values(d).some(v => v.toString().toLowerCase().includes(term)));
+            renderizarTabla(filtered);
+        }
+
+        function showView(view, filter = null) {
+            activeCharts.forEach(c => c.destroy());
+            activeCharts = [];
+            const frame = document.getElementById('contentFrame');
+            const title = document.getElementById('viewTitle');
+            
+            if (view === 'home') {
+                title.innerText = "Inicio";
+                frame.innerHTML = `<div class="h-full flex items-center justify-center">
+                    <div class="text-center p-12 bg-white rounded-xl shadow-xl border border-ocasa-border max-w-md">
+                        <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-ocasa-calypso"></i>
+                        <h1 class="text-3xl font-black uppercase italic italic">OCASA</h1>
+                        <p class="text-ocasa-text-3 font-bold text-sm tracking-widest">SISTEMA DE GESTIÓN</p>
+                    </div>
+                </div>`;
+            } else if (view === 'historico') {
+                title.innerText = "Historial de Reclamos";
+                frame.innerHTML = `
+                    <div class="space-y-4">
+                        <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar guía o tipo..." class="p-4 w-full md:w-80 rounded-lg border border-ocasa-border outline-none text-sm shadow-sm" value="${filter || ''}">
+                        <div class="bg-white rounded-xl border border-ocasa-border overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-ocasa-navy text-white text-[10px] font-black uppercase">
+                                        <tr><th class="p-4">Fecha</th><th class="p-4">Remito</th><th class="p-4">Tipo</th><th class="p-4">Prioridad</th><th class="p-4">Descripción</th><th class="p-4">Resolución</th><th class="p-4 text-right">Estado</th></tr>
+                                    </thead>
+                                    <tbody id="tablaBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`;
+                renderizarTabla(filter ? datosFull.filter(d => d.remito === filter || d.estado === filter) : datosFull);
+            } else if (view === 'stats') {
+                title.innerText = "Dashboard";
+                const stats = {
+                    Pendiente: datosFull.filter(d => d.estado === 'Pendiente').length,
+                    Resuelto: datosFull.filter(d => d.estado === 'Resuelto').length,
+                    Alta: datosFull.filter(d => d.prioridad === 'Alta').length
+                };
+
+                frame.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="chart-card"><p class="chart-label">Pendientes</p><p class="text-5xl font-black text-ocasa-warning">${stats.Pendiente}</p></div>
+                        <div class="chart-card"><p class="chart-label">Resueltos</p><p class="text-5xl font-black text-ocasa-success">${stats.Resuelto}</p></div>
+                        <div class="chart-card"><p class="chart-label">Urgentes</p><p class="text-5xl font-black text-ocasa-danger">${stats.Alta}</p></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="chart-card"><p class="chart-label">Distribución por Estado</p><canvas id="chartEstado"></canvas></div>
+                        <div class="chart-card"><p class="chart-label">Distribución por Prioridad</p><canvas id="chartPrio"></canvas></div>
+                    </div>`;
+
+                setTimeout(() => {
+                    const commonOptions = { plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', weight: '700' } } } } };
+                    activeCharts.push(new Chart(document.getElementById('chartEstado'), {
+                        type: 'doughnut',
+                        data: { labels: ['Pendiente', 'Resuelto'], datasets: [{ data: [stats.Pendiente, stats.Resuelto], backgroundColor: ['#FFAB40', '#8FBF4C'] }] },
+                        options: commonOptions
+                    }));
+                    activeCharts.push(new Chart(document.getElementById('chartPrio'), {
+                        type: 'pie',
+                        data: { labels: ['Alta', 'Otros'], datasets: [{ data: [stats.Alta, datosFull.length - stats.Alta], backgroundColor: ['#D64045', '#E0F4F5'] }] },
+                        options: commonOptions
+                    }));
+                }, 100);
+            } else if (view === 'carga') {
+                title.innerText = "Nueva Carga";
+                frame.innerHTML = `<div class="max-w-lg mx-auto bg-white p-8 rounded-xl shadow-lg border border-ocasa-border">
+                    <form id="formCarga" class="space-y-4">
+                        <div><label class="chart-label">Tipo de Reclamo</label><select id="f-tipo" class="w-full p-4 bg-gray-50 border rounded-lg font-bold"><option>Caja rota</option><option>Producto equivocado</option><option>No recibí producto</option></select></div>
+                        <div><label class="chart-label">N° Remito / Guía</label><input type="text" id="f-remito" required class="w-full p-4 bg-gray-50 border rounded-lg font-black"></div>
+                        <div><label class="chart-label">Prioridad</label><select id="f-prioridad" class="w-full p-4 bg-gray-50 border rounded-lg"><option>Baja</option><option>Media</option><option>Alta</option></select></div>
+                        <div><label class="chart-label">Descripción</label><textarea id="f-descripcion" required class="w-full p-4 bg-gray-50 border rounded-lg h-32"></textarea></div>
+                        <button type="submit" class="w-full py-4 bg-ocasa-calypso text-white font-black uppercase rounded-lg shadow-lg hover:opacity-90">Sincronizar Reclamo</button>
+                    </form>
+                </div>`;
+                document.getElementById('formCarga').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const btn = e.target.querySelector('button');
+                    btn.disabled = true; btn.innerText = "Enviando...";
+                    const payload = { fecha: new Date().toISOString(), tipo: document.getElementById('f-tipo').value, remito: document.getElementById('f-remito').value, prioridad: document.getElementById('f-prioridad').value, descripcion: document.getElementById('f-descripcion').value, estado: "Pendiente", usuario: "Gonzalo Dorrego" };
+                    await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    alert("¡Reclamo cargado exitosamente!");
+                    init();
+                };
+            }
+            lucide.createIcons();
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
