@@ -67,6 +67,7 @@
             background-size: cover; background-position: center;
         }
         #overlay { display: none; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* === STATS DASHBOARD === */
         .kpi-card {
@@ -639,18 +640,43 @@
 
             else if (view === 'historico') {
                 title.innerText = filter ? `Filtrando: ${filter}` : "Historial General";
+                activeFilter = filter;
                 frame.innerHTML = `
-                    <div class="max-w-6xl mx-auto space-y-4">
-                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                            <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Remito..." class="p-3 bg-slate-50 border rounded-xl text-sm w-48 outline-none">
-                            ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Ver todos</button>` : ''}
+                    <div class="max-w-full mx-auto space-y-4">
+                        <div class="bg-white p-4 rounded-2xl flex flex-wrap gap-3 justify-between items-center shadow-sm border border-slate-100">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <input type="text" id="searchTable" oninput="filtrarTabla()" placeholder="Buscar remito, tipo, descripción..." class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm w-64 outline-none font-bold">
+                                <select id="filterEstado" onchange="filtrarTabla()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase outline-none text-slate-600">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Finalizado">Finalizado</option>
+                                </select>
+                                <select id="filterPrioridad" onchange="filtrarTabla()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black uppercase outline-none text-slate-600">
+                                    <option value="">Todas las prioridades</option>
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="contadorResultados" class="text-[10px] font-black text-slate-400 uppercase italic"></span>
+                                ${filter ? `<button onclick="showView('historico')" class="text-[9px] font-black text-red-500 bg-red-50 px-4 py-2 rounded-lg border border-red-100 uppercase italic">Limpiar filtro</button>` : ''}
+                            </div>
                         </div>
-                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase italic">
-                                    <tr><th class="p-5">Remito</th><th class="p-5">Tipo</th><th class="p-5">Estado</th></tr>
+                        <div class="bg-white rounded-[2rem] border border-slate-200 overflow-x-auto">
+                            <table class="w-full text-left" style="min-width:900px;">
+                                <thead class="bg-slate-50 text-[9px] font-black text-slate-400 uppercase italic tracking-widest">
+                                    <tr>
+                                        <th class="px-5 py-4 whitespace-nowrap">Fecha</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Remito</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Tipo</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Descripción</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Prioridad</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Resolución</th>
+                                        <th class="px-5 py-4 whitespace-nowrap">Estado</th>
+                                    </tr>
                                 </thead>
-                                <tbody id="tablaBody" class="text-sm"></tbody>
+                                <tbody id="tablaBody" class="text-sm divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
                     </div>`;
@@ -658,6 +684,7 @@
                 let data = datosFull;
                 if (filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
+                    document.getElementById('filterEstado').value = 'Pendiente';
                 } else if (filter) {
                     data = datosFull.filter(d => d.remito == filter);
                 }
@@ -673,22 +700,64 @@
             lucide.createIcons();
         }
 
+        let activeFilter = null;
+
+        function badgePrioridad(p) {
+            if (!p) return '<span class="text-slate-300 text-[10px] font-bold">—</span>';
+            const map = {
+                'Alta':  'bg-red-50 text-red-600 border-red-200',
+                'Media': 'bg-orange-50 text-orange-500 border-orange-200',
+                'Baja':  'bg-green-50 text-green-600 border-green-200'
+            };
+            const cls = map[p] || 'bg-slate-50 text-slate-500 border-slate-200';
+            return `<span class="px-2.5 py-1 ${cls} rounded-full text-[9px] font-black uppercase border tracking-wider">${p}</span>`;
+        }
+
+        function badgeEstado(e) {
+            const isPend = e === 'Pendiente';
+            return `<span class="px-2.5 py-1 ${isPend ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 border-cyan-200'} rounded-full text-[9px] font-black uppercase border tracking-wider" style="${isPend ? '' : 'color:#0097A7'}">${e || '—'}</span>`;
+        }
+
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
             if (!tbody) return;
+            const contador = document.getElementById('contadorResultados');
+            if (contador) contador.innerText = `${data.length} resultado${data.length !== 1 ? 's' : ''}`;
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 text-xs font-bold italic">Sin resultados</td></tr>`;
+                return;
+            }
             tbody.innerHTML = data.map(item => `
-                <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td class="p-5 font-black text-slate-900">${item.remito}</td>
-                    <td class="p-5 text-slate-600 font-bold italic">${item.tipo}</td>
-                    <td class="p-5">
-                        <span class="px-3 py-1.5 ${item.estado === 'Pendiente' ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-cyan-50 text-ocasa-cyan border-cyan-200'} rounded-full text-[10px] font-black uppercase border tracking-tighter">${item.estado}</span>
+                <tr class="hover:bg-slate-50/60 transition-colors">
+                    <td class="px-5 py-4 text-[11px] text-slate-500 font-bold whitespace-nowrap">${item.fecha || '—'}</td>
+                    <td class="px-5 py-4 font-black text-slate-900 whitespace-nowrap">${item.remito || '—'}</td>
+                    <td class="px-5 py-4 text-slate-600 font-bold italic whitespace-nowrap">${item.tipo || '—'}</td>
+                    <td class="px-5 py-4 text-slate-600 text-[12px] max-w-[260px]">
+                        <span class="line-clamp-2" title="${item.descripcion || ''}">${item.descripcion || '—'}</span>
                     </td>
+                    <td class="px-5 py-4 whitespace-nowrap">${badgePrioridad(item.prioridad)}</td>
+                    <td class="px-5 py-4 text-slate-500 text-[11px] max-w-[220px]">
+                        <span class="line-clamp-2" title="${item.resolucion || ''}">${item.resolucion || '<span class="text-slate-300 italic">Sin resolución</span>'}</span>
+                    </td>
+                    <td class="px-5 py-4 whitespace-nowrap">${badgeEstado(item.estado)}</td>
                 </tr>`).join('');
         }
 
         function filtrarTabla() {
-            const term = document.getElementById('searchTable').value.toLowerCase();
-            const filtrados = datosFull.filter(d => d.remito.toLowerCase().includes(term));
+            const term = (document.getElementById('searchTable')?.value || '').toLowerCase();
+            const estado = document.getElementById('filterEstado')?.value || '';
+            const prioridad = document.getElementById('filterPrioridad')?.value || '';
+            const filtrados = datosFull.filter(d => {
+                const matchText = !term ||
+                    (d.remito || '').toLowerCase().includes(term) ||
+                    (d.tipo || '').toLowerCase().includes(term) ||
+                    (d.descripcion || '').toLowerCase().includes(term);
+                const matchEstado = !estado || d.estado === estado;
+                const matchPrioridad = !prioridad || d.prioridad === prioridad;
+                // Si hay filtro activo de notificación (remito específico)
+                const matchActive = !activeFilter || activeFilter === 'Pendiente' || d.remito == activeFilter;
+                return matchText && matchEstado && matchPrioridad && matchActive;
+            });
             renderizarTabla(filtrados);
         }
 
