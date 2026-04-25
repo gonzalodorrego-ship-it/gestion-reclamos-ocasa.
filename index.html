@@ -702,6 +702,13 @@
 
         let activeFilter = null;
 
+        function formatFecha(f) {
+            if (!f) return '—';
+            const d = new Date(f);
+            if (isNaN(d)) return f;
+            return d.toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
         function badgePrioridad(p) {
             if (!p) return '<span class="text-slate-300 text-[10px] font-bold">—</span>';
             const map = {
@@ -729,16 +736,12 @@
             }
             tbody.innerHTML = data.map(item => `
                 <tr class="hover:bg-slate-50/60 transition-colors">
-                    <td class="px-5 py-4 text-[11px] text-slate-500 font-bold whitespace-nowrap">${item.fecha || '—'}</td>
+                    <td class="px-5 py-4 text-[11px] text-slate-500 font-bold whitespace-nowrap">${formatFecha(item.fecha)}</td>
                     <td class="px-5 py-4 font-black text-slate-900 whitespace-nowrap">${item.remito || '—'}</td>
                     <td class="px-5 py-4 text-slate-600 font-bold italic whitespace-nowrap">${item.tipo || '—'}</td>
-                    <td class="px-5 py-4 text-slate-600 text-[12px] max-w-[260px]">
-                        <span class="line-clamp-2" title="${item.descripcion || ''}">${item.descripcion || '—'}</span>
-                    </td>
+                    <td class="px-5 py-4 text-slate-600 text-[12px] whitespace-nowrap">${item.descripcion || '—'}</td>
                     <td class="px-5 py-4 whitespace-nowrap">${badgePrioridad(item.prioridad)}</td>
-                    <td class="px-5 py-4 text-slate-500 text-[11px] max-w-[220px]">
-                        <span class="line-clamp-2" title="${item.resolucion || ''}">${item.resolucion || '<span class="text-slate-300 italic">Sin resolución</span>'}</span>
-                    </td>
+                    <td class="px-5 py-4 text-slate-500 text-[11px] whitespace-nowrap">${item.resolucion || '<span class="text-slate-400 italic font-bold">Sin resolución</span>'}</td>
                     <td class="px-5 py-4 whitespace-nowrap">${badgeEstado(item.estado)}</td>
                 </tr>`).join('');
         }
