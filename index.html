@@ -7,12 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <style>
         :root { --ocasa-cyan: #0097A7; }
         body { font-family: 'Roboto', sans-serif; background-color: #F8FAFC; color: #1e293b; }
         .bg-ocasa-cyan { background-color: var(--ocasa-cyan); }
         
-        /* Animación Campana */
         @keyframes bell-swing {
             0% { transform: rotate(0); }
             15% { transform: rotate(15deg); }
@@ -24,7 +24,6 @@
         }
         .animate-bell svg { animation: bell-swing 2s infinite; color: #ef4444 !important; }
 
-        /* Dropdown Notificaciones */
         #notifPanel { 
             display: none; 
             position: absolute; 
@@ -68,6 +67,54 @@
             background-size: cover; background-position: center;
         }
         #overlay { display: none; }
+
+        /* === STATS DASHBOARD === */
+        .kpi-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .kpi-card.clickable { cursor: pointer; }
+        
+        .chart-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .chart-title {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+        .chart-subtitle {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .kpi-value { animation: countUp 0.5s ease forwards; }
+
+        .stat-legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
@@ -136,6 +183,12 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxs6-28lVAXxzHRSCRVMijfUlJ7IWtImxlhatT1GNA4U3OLmx2A-E5eZXekfX1hrvxARQ/exec';
         let datosFull = [];
         let reclamosAtrasados = [];
+        let chartInstances = {};
+
+        function destroyCharts() {
+            Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e){} });
+            chartInstances = {};
+        }
 
         function toggleSidebar() {
             if (window.innerWidth >= 768) return;
@@ -152,7 +205,6 @@
             document.getElementById('notifPanel').classList.toggle('show');
         }
 
-        // Click fuera para cerrar notificaciones
         window.addEventListener('click', (e) => {
             if (!document.getElementById('btnBell').contains(e.target) && !document.getElementById('notifPanel').contains(e.target)) {
                 document.getElementById('notifPanel').classList.remove('show');
@@ -198,7 +250,347 @@
             showView('historico', remito);
         }
 
+        /* ===================================================
+           PROCESAR DATOS PARA ESTADÍSTICAS
+        =================================================== */
+        function procesarDatosStats() {
+            const total = datosFull.length;
+            const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
+            const resueltos = total - pendientes;
+            const tasaResolucion = total > 0 ? Math.round((resueltos / total) * 100) : 0;
+
+            // Por tipo
+            const porTipo = {};
+            datosFull.forEach(d => { porTipo[d.tipo] = (porTipo[d.tipo] || 0) + 1; });
+
+            // Últimos 7 días
+            const porFecha = {};
+            const hoy = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(hoy);
+                d.setDate(hoy.getDate() - i);
+                const key = d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+                porFecha[key] = 0;
+            }
+            datosFull.forEach(d => {
+                if (!d.fecha) return;
+                const fecha = new Date(d.fecha);
+                const key = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+                if (porFecha[key] !== undefined) porFecha[key]++;
+            });
+
+            // SLA: vencidos (>24hs pendientes)
+            const ahora = new Date();
+            const vencidos = datosFull.filter(d => {
+                if (d.estado !== 'Pendiente') return false;
+                const diff = (ahora - new Date(d.fecha)) / (1000 * 60 * 60);
+                return diff >= 24;
+            }).length;
+
+            return { total, pendientes, resueltos, tasaResolucion, porTipo, porFecha, vencidos };
+        }
+
+        /* ===================================================
+           RENDER DASHBOARD ESTADÍSTICAS
+        =================================================== */
+        function renderStats() {
+            destroyCharts();
+            const { total, pendientes, resueltos, tasaResolucion, porTipo, porFecha, vencidos } = procesarDatosStats();
+
+            const tipoLabels = Object.keys(porTipo);
+            const tipoValues = Object.values(porTipo);
+            const fechaLabels = Object.keys(porFecha);
+            const fechaValues = Object.values(porFecha);
+
+            const CYAN = '#0097A7';
+            const CYAN_LIGHT = '#e0f4f6';
+            const ORANGE = '#f97316';
+            const ORANGE_LIGHT = '#fff7ed';
+            const RED = '#ef4444';
+            const SLATE = '#94a3b8';
+            const SLATE_LIGHT = '#f8fafc';
+
+            const tipoColors = ['#0097A7','#06b6d4','#0e7490','#f97316','#fb923c','#fbbf24'];
+
+            const frame = document.getElementById('contentFrame');
+
+            frame.innerHTML = `
+            <div class="max-w-6xl mx-auto space-y-6 pb-8">
+
+                <!-- Fila de KPIs -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="kpi-card">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 italic mb-3">Total Histórico</p>
+                        <p class="kpi-value text-5xl font-black text-slate-800 tracking-tighter leading-none">${total}</p>
+                        <p class="text-[10px] text-slate-400 font-bold mt-2 uppercase">Reclamos</p>
+                    </div>
+                    <div class="kpi-card clickable" onclick="showView('historico','Pendiente')">
+                        <p class="text-[9px] font-black uppercase tracking-widest italic mb-3" style="color:${ORANGE}">Pendientes</p>
+                        <p class="kpi-value text-5xl font-black tracking-tighter leading-none" style="color:${ORANGE}">${pendientes}</p>
+                        <p class="text-[10px] font-bold mt-2 uppercase flex items-center gap-1" style="color:${ORANGE}">
+                            Ver detalle <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </p>
+                    </div>
+                    <div class="kpi-card">
+                        <p class="text-[9px] font-black uppercase tracking-widest italic mb-3" style="color:${CYAN}">Resueltos</p>
+                        <p class="kpi-value text-5xl font-black tracking-tighter leading-none" style="color:${CYAN}">${resueltos}</p>
+                        <p class="text-[10px] font-bold mt-2 uppercase" style="color:${CYAN}">Cerrados</p>
+                    </div>
+                    <div class="kpi-card ${vencidos > 0 ? 'border-red-100' : ''}">
+                        <p class="text-[9px] font-black uppercase tracking-widest italic mb-3" style="color:${vencidos > 0 ? RED : SLATE}">SLA Vencidos</p>
+                        <p class="kpi-value text-5xl font-black tracking-tighter leading-none" style="color:${vencidos > 0 ? RED : SLATE}">${vencidos}</p>
+                        <p class="text-[10px] font-bold mt-2 uppercase" style="color:${vencidos > 0 ? RED : SLATE}">+24hs sin resolver</p>
+                    </div>
+                </div>
+
+                <!-- Fila: Dona + Barras por tipo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Dona: Estado -->
+                    <div class="chart-card">
+                        <p class="chart-title">Distribución</p>
+                        <p class="chart-subtitle">Estado general de reclamos</p>
+                        <div class="flex items-center gap-6">
+                            <div style="position:relative;width:160px;height:160px;flex-shrink:0;">
+                                <canvas id="chartEstado" role="img" aria-label="Gráfico de dona: distribución de reclamos por estado. Pendientes: ${pendientes}, Resueltos: ${resueltos}">Pendientes: ${pendientes}, Resueltos: ${resueltos}</canvas>
+                                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+                                    <p style="font-size:28px;font-weight:900;color:#1e293b;line-height:1;">${tasaResolucion}%</p>
+                                    <p style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">Resuelto</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-3 flex-1">
+                                <div class="flex items-center gap-3 p-3 rounded-2xl" style="background:${ORANGE_LIGHT}">
+                                    <span class="stat-legend-dot" style="background:${ORANGE}"></span>
+                                    <div>
+                                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:${ORANGE};letter-spacing:0.08em;">Pendientes</p>
+                                        <p style="font-size:22px;font-weight:900;color:${ORANGE};line-height:1.1;">${pendientes}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 rounded-2xl" style="background:${CYAN_LIGHT}">
+                                    <span class="stat-legend-dot" style="background:${CYAN}"></span>
+                                    <div>
+                                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:${CYAN};letter-spacing:0.08em;">Resueltos</p>
+                                        <p style="font-size:22px;font-weight:900;color:${CYAN};line-height:1.1;">${resueltos}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barras horizontales: por tipo -->
+                    <div class="chart-card">
+                        <p class="chart-title">Desglose</p>
+                        <p class="chart-subtitle">Reclamos por tipo</p>
+                        ${tipoLabels.length === 0 
+                            ? `<p style="color:#94a3b8;font-size:12px;font-style:italic;text-align:center;padding:40px 0;">Sin datos disponibles</p>`
+                            : `<div style="position:relative;width:100%;height:${Math.max(tipoLabels.length * 50 + 40, 160)}px;">
+                                <canvas id="chartTipo" role="img" aria-label="Gráfico de barras horizontales por tipo de reclamo">${tipoLabels.map((l,i)=>l+': '+tipoValues[i]).join(', ')}</canvas>
+                               </div>`
+                        }
+                    </div>
+                </div>
+
+                <!-- Línea temporal: últimos 7 días -->
+                <div class="chart-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <p class="chart-title">Tendencia</p>
+                            <p class="chart-subtitle">Reclamos ingresados — últimos 7 días</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase italic">
+                            <span class="stat-legend-dot" style="background:${CYAN}"></span> Ingresos diarios
+                        </div>
+                    </div>
+                    <div style="position:relative;width:100%;height:220px;">
+                        <canvas id="chartLine" role="img" aria-label="Gráfico de línea: reclamos por día en los últimos 7 días">${fechaLabels.map((l,i)=>l+': '+fechaValues[i]).join(', ')}</canvas>
+                    </div>
+                </div>
+
+                <!-- Barra de progreso SLA -->
+                <div class="chart-card">
+                    <p class="chart-title">Cumplimiento</p>
+                    <p class="chart-subtitle">Tasa de resolución SLA</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;">Resueltos a tiempo</span>
+                                <span style="font-size:14px;font-weight:900;color:${CYAN}">${tasaResolucion}%</span>
+                            </div>
+                            <div style="height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                                <div id="progressBar" style="height:100%;border-radius:99px;background:${CYAN};width:0%;transition:width 1s ease;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;">Pendientes sin resolver</span>
+                                <span style="font-size:14px;font-weight:900;color:${ORANGE}">${total > 0 ? Math.round((pendientes/total)*100) : 0}%</span>
+                            </div>
+                            <div style="height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                                <div id="progressBarPend" style="height:100%;border-radius:99px;background:${ORANGE};width:0%;transition:width 1s ease;"></div>
+                            </div>
+                        </div>
+                        ${vencidos > 0 ? `
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;">SLA vencidos (+24hs)</span>
+                                <span style="font-size:14px;font-weight:900;color:${RED}">${total > 0 ? Math.round((vencidos/total)*100) : 0}%</span>
+                            </div>
+                            <div style="height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                                <div id="progressBarVenc" style="height:100%;border-radius:99px;background:${RED};width:0%;transition:width 1s ease;"></div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                </div>
+
+            </div>`;
+
+            // Animar barras de progreso
+            setTimeout(() => {
+                const pb = document.getElementById('progressBar');
+                const pbP = document.getElementById('progressBarPend');
+                const pbV = document.getElementById('progressBarVenc');
+                if (pb) pb.style.width = tasaResolucion + '%';
+                if (pbP) pbP.style.width = (total > 0 ? Math.round((pendientes/total)*100) : 0) + '%';
+                if (pbV) pbV.style.width = (total > 0 ? Math.round((vencidos/total)*100) : 0) + '%';
+            }, 100);
+
+            // Chart: dona estado
+            const ctxEstado = document.getElementById('chartEstado');
+            if (ctxEstado) {
+                chartInstances.estado = new Chart(ctxEstado, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pendientes', 'Resueltos'],
+                        datasets: [{
+                            data: [pendientes, resueltos],
+                            backgroundColor: [ORANGE, CYAN],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '72%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${ctx.raw} (${total > 0 ? Math.round(ctx.raw/total*100) : 0}%)`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart: barras horizontales por tipo
+            const ctxTipo = document.getElementById('chartTipo');
+            if (ctxTipo && tipoLabels.length > 0) {
+                chartInstances.tipo = new Chart(ctxTipo, {
+                    type: 'bar',
+                    data: {
+                        labels: tipoLabels,
+                        datasets: [{
+                            label: 'Cantidad',
+                            data: tipoValues,
+                            backgroundColor: tipoColors.slice(0, tipoLabels.length),
+                            borderRadius: 10,
+                            borderSkipped: false,
+                            barThickness: 28
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: ctx => ` ${ctx.raw} reclamo${ctx.raw !== 1 ? 's' : ''}` }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    font: { size: 11, weight: '700' },
+                                    color: '#94a3b8',
+                                    stepSize: 1,
+                                    callback: v => Number.isInteger(v) ? v : null
+                                },
+                                border: { display: false }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: '700' }, color: '#475569' },
+                                border: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart: línea temporal
+            const ctxLine = document.getElementById('chartLine');
+            if (ctxLine) {
+                chartInstances.line = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: fechaLabels,
+                        datasets: [{
+                            label: 'Reclamos',
+                            data: fechaValues,
+                            borderColor: CYAN,
+                            backgroundColor: CYAN_LIGHT,
+                            borderWidth: 2.5,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: CYAN,
+                            pointBorderWidth: 2.5,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: ctx => ` ${ctx.raw} reclamo${ctx.raw !== 1 ? 's' : ''}` }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    font: { size: 11, weight: '700' },
+                                    color: '#94a3b8',
+                                    autoSkip: false
+                                },
+                                border: { display: false }
+                            },
+                            y: {
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    font: { size: 11, weight: '700' },
+                                    color: '#94a3b8',
+                                    stepSize: 1,
+                                    callback: v => Number.isInteger(v) ? v : null
+                                },
+                                min: 0,
+                                border: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         async function showView(view, filter = null) {
+            destroyCharts();
             const frame = document.getElementById('contentFrame');
             const title = document.getElementById('viewTitle');
             frame.className = "flex-1 overflow-y-auto p-4 md:p-10";
@@ -240,7 +632,7 @@
                         estado: "Pendiente", usuario: "Gonzalo Dorrego"
                     };
                     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("¡Cargado!"); 
+                    alert("¡Cargado!");
                     init();
                 });
             }
@@ -263,11 +655,10 @@
                         </div>
                     </div>`;
                 
-                // ARREGLO FILTRO ESTADÍSTICA: Si el filtro es "Pendiente", filtramos por la columna estado
                 let data = datosFull;
-                if(filter === 'Pendiente') {
+                if (filter === 'Pendiente') {
                     data = datosFull.filter(d => d.estado === 'Pendiente');
-                } else if(filter) {
+                } else if (filter) {
                     data = datosFull.filter(d => d.remito == filter);
                 }
                 renderizarTabla(data);
@@ -275,26 +666,16 @@
 
             else if (view === 'stats') {
                 title.innerText = "Estadísticas";
-                const total = datosFull.length;
-                const pendientes = datosFull.filter(d => d.estado === 'Pendiente').length;
-                frame.innerHTML = `
-                    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                            <p class="text-[10px] font-black text-slate-400 uppercase italic">Total Histórico</p>
-                            <p class="text-6xl font-black text-slate-800 tracking-tighter">${total}</p>
-                        </div>
-                        <div onclick="showView('historico', 'Pendiente')" class="bg-white p-8 rounded-[2.5rem] border border-orange-100 shadow-sm text-orange-600 cursor-pointer hover:bg-orange-50 transition-all">
-                            <p class="text-[10px] font-black uppercase italic flex justify-between">Pendientes <i data-lucide="arrow-right" class="w-4 h-4"></i></p>
-                            <p class="text-6xl font-black tracking-tighter">${pendientes}</p>
-                        </div>
-                    </div>`;
+                frame.classList.remove('hero-bg');
+                renderStats();
             }
+
             lucide.createIcons();
         }
 
         function renderizarTabla(data) {
             const tbody = document.getElementById('tablaBody');
-            if(!tbody) return;
+            if (!tbody) return;
             tbody.innerHTML = data.map(item => `
                 <tr class="border-t border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td class="p-5 font-black text-slate-900">${item.remito}</td>
@@ -317,10 +698,11 @@
                 datosFull = await res.json();
                 showView('home');
                 lucide.createIcons();
-                setTimeout(procesarAlertas, 800); 
-            } catch (e) { console.error("Error"); }
+                setTimeout(procesarAlertas, 800);
+            } catch (e) { console.error("Error cargando datos:", e); }
         }
         init();
     </script>
 </body>
 </html>
+
